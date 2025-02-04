@@ -1,5 +1,7 @@
 package com.infodart.kenstar_crm.repository;
 
+import java.util.List;
+
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
@@ -8,7 +10,8 @@ import com.infodart.kenstar_crm.entity.Company;
 import com.infodart.kenstar_crm.entity.Leave;
 
 @Repository
-public interface LeaveRepo extends CrudRepository<Leave, Long> {
+public interface LeaveRepository extends CrudRepository<Leave, Long> {
 
-	public Leave findAllById(int employeeId);
+	 
+	public List<Leave> findByEmployeeId(Long employeeId);
 }
