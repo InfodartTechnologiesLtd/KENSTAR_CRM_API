@@ -25,7 +25,8 @@ public class Company {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	private String companyId;
+	@Column(name = "company_id")
+	private Integer companyId;
 	private String companyName;
 	private String companyCode;
 	
@@ -56,10 +57,10 @@ public class Company {
 	public void setId(Long id) {
 		this.id = id;
 	}
-	public String getCompanyId() {
+	public Integer getCompanyId() {
 		return companyId;
 	}
-	public void setCompanyId(String companyId) {
+	public void setCompanyId(Integer companyId) {
 		this.companyId = companyId;
 	}
 	public String getCompanyName() {

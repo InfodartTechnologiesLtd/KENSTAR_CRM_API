@@ -63,6 +63,7 @@ public class AuthServiceImpl implements AuthService {
 			}
 			userDetail.setRoles(Set.of(role));
 
+			
 			userDetail.setCreatedBy(userDetailDto.getCreatedBy());
 			// userDetail.setCreatedDateTime(userDetailDto.getCreatedDateTime());
 			userDetail.setUpdatedBy(userDetailDto.getUpdatedBy());

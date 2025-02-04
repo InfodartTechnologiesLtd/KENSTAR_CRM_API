@@ -46,6 +46,9 @@ public class UserServiceImpl implements UserService {
 				userDetailDto.setEmail(userDetail2.getEmail());
 				userDetailDto.setUsername(userDetail2.getUsername());
 				userDetailDto.setMobilenumber(userDetail2.getMobilenumber());
+				userDetailDto.setIsActive(userDetail2.getIsActive());
+				userDetailDto.setCreatedBy(userDetail2.getCreatedBy()); 
+				//userDetailDto.setRole(userDetail2.getRoles()); 
 			}
 			System.out.println(" getUser called 55 " + userDetailDto.toString());
 		}
@@ -88,6 +91,8 @@ public class UserServiceImpl implements UserService {
 				role = checkRoleExist();
 			}
 			userDetail.setRoles(Set.of(role));
+			
+			
 
 			userDetail.setCreatedBy(userDetailDto.getCreatedBy());
 			// userDetail.setCreatedDateTime(userDetailDto.getCreatedDateTime());

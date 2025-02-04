@@ -17,34 +17,32 @@ import com.infodart.kenstar_crm.service.AuthService;
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
-	
+
 	@Autowired
 	private AuthService authService;
-	
-	 
+
 	@PostMapping(value = "/registerUser")
-	public ResponseEntity<ResponseDto<UserDto>>  addUser(@RequestBody UserDto userDetailDto) {
-		UserDto userdto=  authService.registerUser(userDetailDto);
-		
-        return ResponseEntity.ok(ResponseDto.success("200","User created successfully", userdto));
+	public ResponseEntity<ResponseDto<UserDto>> addUser(@RequestBody UserDto userDetailDto) {
+		UserDto userdto = authService.registerUser(userDetailDto);
+		return ResponseEntity.ok(ResponseDto.success("200", "User created successfully", userdto));
 	}
-	
-	
+
 	@PostMapping(value = "/setPin")
-	public PinDto setPin(@RequestBody PinDto userDetailDto) {
-		return authService.setPin(userDetailDto);
+	public ResponseEntity<ResponseDto<PinDto>> setPin(@RequestBody PinDto userDetailDto) {
+		PinDto pinDto = authService.setPin(userDetailDto);
+		return ResponseEntity.ok(ResponseDto.success("200", "Pin created successfully", pinDto));
 	}
-	
-	
+
 	@PostMapping(value = "/forgetPin")
-	public PinDto forgotPin(@RequestBody PinDto userDetailDto) {
-		return authService.forgotPin(userDetailDto);
+	public ResponseEntity<ResponseDto<PinDto>> forgotPin(@RequestBody PinDto userDetailDto) {
+		PinDto pinDto = authService.forgotPin(userDetailDto);
+		return ResponseEntity.ok(ResponseDto.success("200", "Old Pin send to your registered emailId", pinDto));
 	}
-	
-	
+
 	@PostMapping(value = "/changePin")
-	public PinDto changePin(@RequestBody PinDto userDetailDto) {
-		return authService.changePin(userDetailDto);
+	public ResponseEntity<ResponseDto<PinDto>> changePin(@RequestBody PinDto userDetailDto) {
+		PinDto pinDto = authService.changePin(userDetailDto);
+		return ResponseEntity.ok(ResponseDto.success("200", "Pin Changed successfully", pinDto));
 	}
 
 }
