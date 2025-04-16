@@ -2,19 +2,23 @@ package com.infodart.kenstar_crm.serviceImpl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import com.infodart.kenstar_crm.dto.UserDto;
+import com.infodart.kenstar_crm.entity.ERole;
 import com.infodart.kenstar_crm.entity.Role;
 import com.infodart.kenstar_crm.entity.User;
 import com.infodart.kenstar_crm.dto.RoleDto;
 import com.infodart.kenstar_crm.repository.RoleRepo;
 import com.infodart.kenstar_crm.repository.UserRepository;
 import com.infodart.kenstar_crm.service.UserService;
+import com.infodart.kenstar_crm.util.Utils;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -28,113 +32,171 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public UserDto getUser(UserDto userDetail) {
 
+		if (userDetail == null)
+			return null;
+
 		List<User> userDetailList = new ArrayList<>();
-		if (!userDetail.getUsername().isBlank()) {
+
+		if (!Utils.isNullOrEmpty(userDetail.getUsername())) {
 			userDetailList = userDetailRepo.findAllByUsername(userDetail.getUsername());
-		} else if (!userDetail.getEmail().isBlank()) {
+		} else if (!Utils.isNullOrEmpty(userDetail.getEmail())) {
 			userDetailList = userDetailRepo.findAllByEmail(userDetail.getEmail());
-		} else if (!userDetail.getMobilenumber().isBlank()) {
+		} else if (!Utils.isNullOrEmpty(userDetail.getMobilenumber())) {
 			userDetailList = userDetailRepo.findAllByMobilenumber(userDetail.getMobilenumber());
 		}
 
-		UserDto userDetailDto = null;
-		if (userDetailList.size() > 0) {
-			userDetailDto = new UserDto();
-			for (User userDetail2 : userDetailList) {
+		if (userDetailList.isEmpty())
+			return null;
 
-				userDetailDto.setId(userDetail2.getId());
-				userDetailDto.setEmail(userDetail2.getEmail());
-				userDetailDto.setUsername(userDetail2.getUsername());
-				userDetailDto.setMobilenumber(userDetail2.getMobilenumber());
-				userDetailDto.setIsActive(userDetail2.getIsActive());
-				userDetailDto.setCreatedBy(userDetail2.getCreatedBy()); 
-				//userDetailDto.setRole(userDetail2.getRoles()); 
+		// Pick the first ACTIVE user
+		for (User user : userDetailList) {
+			if (user.getIsActive() == 1) {
+				UserDto dto = new UserDto();
+				dto.setId(user.getId());
+				dto.setEmail(user.getEmail());
+				dto.setUsername(user.getUsername());
+				dto.setMobilenumber(user.getMobilenumber());
+				dto.setIsActive(user.getIsActive());
+				dto.setCreatedBy(user.getCreatedBy());
+				 dto.setRole(user.getRoles().getName()); // Uncomment if needed
+				return dto;
 			}
-			System.out.println(" getUser called 55 " + userDetailDto.toString());
 		}
 
-		return userDetailDto;
+		// No active user found
+		return null;
 	}
 
 	@Override
 	public UserDto addUser(UserDto userDetailDto) {
 
-		List<User> userDetailList = userDetailRepo.findAllByUsername(userDetailDto.getUsername());
-
-		/*
-		 * if (userDetailRepo.existsByUsername(userDetailDto.getUsername())) { return
-		 * ResponseEntity.badRequest().body(new
-		 * MessageResponse("Error: Username is already taken!")); }
-		 * 
-		 * if (userDetailRepo.existsByEmail(userDetailDto.getEmail())) { return
-		 * ResponseEntity.badRequest().body(new
-		 * MessageResponse("Error: Email is already in use!")); }
-		 */
-
-		if (CollectionUtils.isEmpty(userDetailList)) {
-			User userDetail = new User();
-
-			userDetail.setEmail(userDetailDto.getEmail());
-			userDetail.setMobilenumber(userDetailDto.getMobilenumber());
-			userDetail.setUsername(userDetailDto.getUsername());
-
-			userDetail.setPassword(userDetailDto.getPassword());
-			// userDetail.setPassword( passwordEncoder.encode(userDetailDto.getPassword())
-			// );
-
-			System.out.println("userDetailDto.toString() ::" + userDetailDto.toString());
-
-			String rolesAsString = String.join(", ", userDetailDto.getRole());
-
-			Role role = roleRepo.findByName(rolesAsString);
-			if (role == null) {
-				role = checkRoleExist();
-			}
-			userDetail.setRoles(Set.of(role));
-			
-			
-
-			userDetail.setCreatedBy(userDetailDto.getCreatedBy());
-			// userDetail.setCreatedDateTime(userDetailDto.getCreatedDateTime());
-			userDetail.setUpdatedBy(userDetailDto.getUpdatedBy());
-			// userDetail.setUpdatedDateTime(userDetailDto.getUpdatedDateTime());
-			userDetail.setIsActive(1);
-
-			userDetailRepo.save(userDetail);
-		} else {
-			System.out.println("User already exist");
+		// 1. Validate input
+		if (userDetailDto == null) {
+			throw new IllegalArgumentException("User details must not be null");
 		}
 
-		return userDetailDto;
+		if (Utils.isNullOrEmpty(userDetailDto.getUsername())) {
+			throw new IllegalArgumentException("Username is required");
+		}
+		if (Utils.isNullOrEmpty(userDetailDto.getEmail())) {
+			throw new IllegalArgumentException("Email is required");
+		}
+		if (Utils.isNullOrEmpty(userDetailDto.getMobilenumber())) {
+			throw new IllegalArgumentException("Mobile number is required");
+		}
+
+		try {
+			ERole.valueOf(userDetailDto.getRole()); // throws IllegalArgumentException if invalid
+		} catch (IllegalArgumentException ex) {
+			throw new RuntimeException("Invalid role provided");
+		}
+
+		// 2. Check for existing user (username/email/mobile)
+		if (!Utils.isNullOrEmpty(userDetailDto.getUsername())
+				&& userDetailRepo.existsByUsername(userDetailDto.getUsername())) {
+			throw new RuntimeException("Username already exists");
+		}
+
+		if (!Utils.isNullOrEmpty(userDetailDto.getEmail()) && userDetailRepo.existsByEmail(userDetailDto.getEmail())) {
+			throw new RuntimeException("Email already exists");
+		}
+
+		if (!Utils.isNullOrEmpty(userDetailDto.getMobilenumber())
+				&& userDetailRepo.existsByMobilenumber(userDetailDto.getMobilenumber())) {
+			throw new RuntimeException("Mobile number already exists");
+		}
+
+		// 3. Map to entity
+		User user = new User();
+		user.setUsername(userDetailDto.getUsername());
+		user.setEmail(userDetailDto.getEmail());
+		user.setMobilenumber(userDetailDto.getMobilenumber());
+
+		// Optional: encode password (recommended)
+		// user.setPassword(passwordEncoder.encode(userDetailDto.getPassword()));
+		user.setPassword(userDetailDto.getPassword());
+
+		user.setCreatedBy(userDetailDto.getCreatedBy());
+		user.setUpdatedBy(userDetailDto.getUpdatedBy());
+		user.setIsActive(1);
+
+		// 4. Handle roles
+		if (userDetailDto.getRole() != null && !userDetailDto.getRole().isEmpty()) {
+			String rolesAsString = String.join(", ", userDetailDto.getRole());
+
+			// Role role = roleRepo.findByName(userDetailDto.getRole());
+			Optional<Role> optionalRole = roleRepo.findByName(rolesAsString);
+			Role role = null;
+			if (optionalRole.isEmpty()) {
+				role = checkRoleExist(); // fallback to default enum role
+			} else {
+				role = optionalRole.get();
+			}
+			user.setRoles(role);
+
+		}
+
+		// 5. Save user
+		User savedUser = userDetailRepo.save(user);
+
+		// 6. Map back to DTO
+		UserDto savedDto = new UserDto();
+		savedDto.setId(savedUser.getId());
+		savedDto.setUsername(savedUser.getUsername());
+		savedDto.setEmail(savedUser.getEmail());
+		savedDto.setMobilenumber(savedUser.getMobilenumber());
+		savedDto.setIsActive(savedUser.getIsActive());
+		savedDto.setCreatedBy(savedUser.getCreatedBy());
+		savedDto.setUpdatedBy(savedUser.getUpdatedBy());
+		// Add roles if needed
+
+		if (savedUser.getRoles() != null) {
+			savedDto.setRole(savedUser.getRoles().getName());
+		}
+		return savedDto;
 	}
 
 	private Role checkRoleExist() {
-		System.out.println("New role added");
-		Role role = new Role();
-		role.setName("ROLE_MODERATOR");
-		return roleRepo.save(role);
+		ERole defaultRole = ERole.ROLE_MODERATOR;
+
+//	    Role role = roleRepo.findByName(defaultRole.name());
+//		if (role != null) {
+//	        return role;
+//	    }
+		Optional<Role> optionalRole = roleRepo.findByName(defaultRole.name());
+		Role role = null;
+		if (optionalRole.isEmpty()) {
+
+			role = new Role();
+			role.setName(defaultRole.name());
+			System.out.println("New role created: " + defaultRole.name());
+			return roleRepo.save(role);
+		} else {
+			role = optionalRole.get();
+			return role;
+		}
+
 	}
 
 	@Override
 	public List<UserDto> getAllUsers() {
-		// Iterable<UserDetail> userDetailList = userDetailRepo.findAll();
-
 		List<User> users = (List<User>) userDetailRepo.findAll();
+	    List<UserDto> userDetailDtoList = new ArrayList<>();
 
-		List<UserDto> UserDetailDtoList = new ArrayList<>();
-		for (User userDetail2 : users) {
-			UserDto userDetailDto = new UserDto();
-			userDetailDto.setId(userDetail2.getId());
-			userDetailDto.setEmail(userDetail2.getEmail());
-			userDetailDto.setUsername(userDetail2.getUsername());
-			userDetailDto.setMobilenumber(userDetail2.getMobilenumber());
+	    for (User user : users) {
+	        UserDto dto = new UserDto();
+	        dto.setId(user.getId());
+	        dto.setEmail(user.getEmail());
+	        dto.setUsername(user.getUsername());
+	        dto.setMobilenumber(user.getMobilenumber());
+	        // Set single role as string
+	        if (user.getRoles() != null) {
+	            dto.setRole(user.getRoles().getName());
+	        }
+	        userDetailDtoList.add(dto);
+	    }
 
-			UserDetailDtoList.add(userDetailDto);
-		}
-
-		return UserDetailDtoList;
-
-		// return null;
+	    return userDetailDtoList;
 	}
 
 	@Override

@@ -2,6 +2,7 @@ package com.infodart.kenstar_crm.serviceImpl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,11 +58,15 @@ public class AuthServiceImpl implements AuthService {
 
 			String rolesAsString = String.join(", ", userDetailDto.getRole());
 
-			Role role = roleRepo.findByName(rolesAsString);
-			if (role == null) {
+			//Role role =  roleRepo.findByName(rolesAsString);
+			Optional<Role> optionalRole= roleRepo.findByName(rolesAsString);
+			Role role =null;
+			if (optionalRole.isEmpty()) {
+				 role = new Role();
 				role = checkRoleExist();
 			}
-			userDetail.setRoles(Set.of(role));
+			//userDetail.setRoles(Set.of(role));
+			userDetail.setRoles(role);
 
 			
 			userDetail.setCreatedBy(userDetailDto.getCreatedBy());

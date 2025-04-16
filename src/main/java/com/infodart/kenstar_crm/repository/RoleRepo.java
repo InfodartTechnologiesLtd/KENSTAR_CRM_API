@@ -3,6 +3,8 @@ package com.infodart.kenstar_crm.repository;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.infodart.kenstar_crm.entity.Role;
@@ -12,6 +14,14 @@ import com.infodart.kenstar_crm.entity.Role;
 @Repository
 public interface RoleRepo extends JpaRepository<Role, Long> {
   //Optional<Role> findByName(ERole name); 
-  
-  Role findByName(String name);
+	/*
+	 * @Query("SELECT r FROM Role r WHERE r.name = :name") Role findByName(String
+	 * name);
+	 */
+	
+	@Query("SELECT r FROM Role r WHERE r.name = :name")
+	Optional<Role> findByName(@Param("name") String name);
+	
+	//@Query("select r from Role r where r.name = ?1")
+	boolean existsByName(String name);
 }

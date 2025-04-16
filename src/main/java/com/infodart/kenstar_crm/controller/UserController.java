@@ -16,6 +16,7 @@ import com.infodart.kenstar_crm.dto.ResponseDto;
 import com.infodart.kenstar_crm.dto.RoleDto;
 import com.infodart.kenstar_crm.dto.UserDto;
 import com.infodart.kenstar_crm.service.UserService;
+import com.infodart.kenstar_crm.util.Utils;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -32,13 +33,35 @@ public class UserController {
 	@PostMapping(value = "/getUser")
 	@Operation(summary = "Get users", description = "Fetch user details via username/mobilenumber from the database")
 	public ResponseEntity<ResponseDto<UserDto>> getUser(@RequestBody UserDto userDetailDto) {
-		UserDto userDto = userService.getUser(userDetailDto);
-		if (userDto.getId() == null || userDto.getIsActive()==0) {
-			ResponseDto<UserDto> responseDto = ResponseDto.error("300", "User not found", null);
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseDto);
-		} else {
-			ResponseDto<UserDto> responseDto = ResponseDto.success("200", "User found successfully", userDto);
-			return ResponseEntity.ok(responseDto);
+
+		// Check if input is null or has missing required fields (you can customize this)
+		// Validate empty/null input fields
+		if (userDetailDto == null ||
+		        (Utils.isNullOrEmpty(userDetailDto.getUsername()) &&
+		        		Utils.isNullOrEmpty(userDetailDto.getMobilenumber()) &&
+		        		Utils.isNullOrEmpty(userDetailDto.getEmail()))) {
+
+
+	        ResponseDto<UserDto> responseDto = ResponseDto.error("400", "Invalid input: username, mobile number, and email are required", null);
+	        return ResponseEntity.badRequest().body(responseDto);
+	    }
+		try {
+
+			UserDto userDto = userService.getUser(userDetailDto);
+			if (null == userDto || userDto.getId() == null || userDto.getIsActive() == 0) {
+				ResponseDto<UserDto> responseDto = ResponseDto.error("404", "User not found", null);
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseDto);
+			} else {
+				ResponseDto<UserDto> responseDto = ResponseDto.success("200", "User found successfully", userDto);
+				return ResponseEntity.ok(responseDto);
+			}
+		} catch (Exception e) {
+			// Log the error for debugging (optional)
+			e.printStackTrace();
+
+			ResponseDto<UserDto> responseDto = ResponseDto.error("500", "An error occurred while retrieving the user",
+					null);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseDto);
 		}
 	}
 
@@ -46,27 +69,61 @@ public class UserController {
 	@Operation(summary = "Get all users", description = "Fetch all user details from the database")
 	public ResponseEntity<ResponseDto<List<UserDto>>> getAllUsers() {
 		List<UserDto> userDtoList = userService.getAllUsers();
-		if (userDtoList.isEmpty()) {
-			ResponseDto<List<UserDto>> responseDto = ResponseDto.error("300", "User not found", null);
-			return ResponseEntity.status(HttpStatus.NO_CONTENT).body(responseDto);
-		} else {
-			return ResponseEntity.ok(ResponseDto.success("200", "User List found successfully", userDtoList));
-		}
-		
+
+	    if (userDtoList == null || userDtoList.isEmpty()) {
+	        ResponseDto<List<UserDto>> responseDto =
+	                ResponseDto.error("204", "No users found", null);
+	        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(responseDto);
+	    }
+
+	    ResponseDto<List<UserDto>> responseDto =
+	            ResponseDto.success("200", "User list retrieved successfully", userDtoList);
+	    return ResponseEntity.ok(responseDto);
+
 	}
 
 	@PostMapping(value = "/addUser")
 	@Operation(summary = "Add users", description = "Add user details into the database")
 	public ResponseEntity<ResponseDto<UserDto>> addUser(@RequestBody UserDto userDetailDto) {
-		UserDto userDto = userService.addUser(userDetailDto);
-		return ResponseEntity.ok(ResponseDto.success("200", "User created successfully", userDto));
+		// Basic null check (you can expand this with validation annotations too)
+	    if (userDetailDto == null) {
+	        ResponseDto<UserDto> responseDto = ResponseDto.error("400", "User details must not be null", null);
+	        return ResponseEntity.badRequest().body(responseDto);
+	    }
+
+	    try {
+	        UserDto userDto = userService.addUser(userDetailDto);
+
+	        if (userDto == null || userDto.getId() == null) {
+	            ResponseDto<UserDto> responseDto = ResponseDto.error("500", "Failed to create user", null);
+	            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseDto);
+	        }
+
+	        ResponseDto<UserDto> responseDto = ResponseDto.success("201", "User created successfully", userDto);
+	        return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
+
+	    } catch (Exception e) {
+	        e.printStackTrace(); // Optional: use proper logging instead
+	        ResponseDto<UserDto> responseDto = ResponseDto.error("500", "An error occurred while creating the user", null);
+	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseDto);
+	    }
 
 	}
 
 	@GetMapping(value = "/getRoles")
 	@Operation(summary = "Get all roles", description = "Fetch all roles details from the database")
-	public List<RoleDto> getAllRoles() {
-		return userService.getAllRoles();
+	public ResponseEntity<ResponseDto<List<RoleDto>>> getAllRoles() {
+		List<RoleDto> roles = userService.getAllRoles();
+
+	    if (roles == null || roles.isEmpty()) {
+	        ResponseDto<List<RoleDto>> responseDto =
+	                ResponseDto.error("204", "No roles found", null);
+	        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(responseDto);
+	    }
+
+	    ResponseDto<List<RoleDto>> responseDto =
+	            ResponseDto.success("200", "Roles fetched successfully", roles);
+	    return ResponseEntity.ok(responseDto);
 	}
 
 }

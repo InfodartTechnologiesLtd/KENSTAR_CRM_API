@@ -14,7 +14,7 @@ public class UserDto {
 
 	private String mobilenumber;
 
-	private Set<String> role;
+	private String  role;
 
 	private String createdBy;
 	private String updatedBy;
@@ -61,11 +61,11 @@ public class UserDto {
 		this.mobilenumber = mobilenumber;
 	}
 
-	public Set<String> getRole() {
+	public String  getRole() {
 		return role;
 	}
 
-	public void setRole(Set<String> role) {
+	public void setRole(String  role) {
 		this.role = role;
 	}
 
