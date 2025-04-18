@@ -2,13 +2,12 @@ package com.infodart.kenstar_crm.dto;
 
 public class PinDto {
 
-	
 	private Integer id;
 	private String pinCode;
-	
+
 	private String oldPinCode;
-	
-	private int userId;
+
+	private Long userId;
 	private int companyId;
 
 	public Integer getId() {
@@ -35,11 +34,11 @@ public class PinDto {
 		this.oldPinCode = oldPinCode;
 	}
 
-	public int getUserId() {
+	public Long getUserId() {
 		return userId;
 	}
 
-	public void setUserId(int userId) {
+	public void setUserId(Long userId) {
 		this.userId = userId;
 	}
 
@@ -50,7 +49,5 @@ public class PinDto {
 	public void setCompanyId(int companyId) {
 		this.companyId = companyId;
 	}
-	
-	 
-	
+
 }

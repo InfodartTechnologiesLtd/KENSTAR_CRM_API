@@ -11,6 +11,7 @@ import org.hibernate.annotations.UpdateTimestamp;
  
 
  import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -73,6 +74,7 @@ public class User   {
 	
 	
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+	@JsonIgnore
     private List<Pin> userCompanyMappings;
 	 
 	public Long getId() {

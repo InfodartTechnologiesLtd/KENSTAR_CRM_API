@@ -3,18 +3,19 @@ package com.infodart.kenstar_crm.serviceImpl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
+import com.infodart.kenstar_crm.dto.RoleDto;
 import com.infodart.kenstar_crm.dto.UserDto;
 import com.infodart.kenstar_crm.entity.ERole;
 import com.infodart.kenstar_crm.entity.Role;
 import com.infodart.kenstar_crm.entity.User;
-import com.infodart.kenstar_crm.dto.RoleDto;
+import com.infodart.kenstar_crm.exceptions.ResourceNotFoundException;
+import com.infodart.kenstar_crm.exceptions.UserAlreadyInactiveException;
+import com.infodart.kenstar_crm.exceptions.UserNotFoundException;
+import com.infodart.kenstar_crm.mapper.UserMapper;
 import com.infodart.kenstar_crm.repository.RoleRepo;
 import com.infodart.kenstar_crm.repository.UserRepository;
 import com.infodart.kenstar_crm.service.UserService;
@@ -33,7 +34,7 @@ public class UserServiceImpl implements UserService {
 	public UserDto getUser(UserDto userDetail) {
 
 		if (userDetail == null)
-			return null;
+			throw new IllegalArgumentException("At least one of username, email, or mobile number is required.");
 
 		List<User> userDetailList = new ArrayList<>();
 
@@ -46,20 +47,18 @@ public class UserServiceImpl implements UserService {
 		}
 
 		if (userDetailList.isEmpty())
-			return null;
+			throw new ResourceNotFoundException("User not found with given input.");
+
+		User users = userDetailList.get(0);
+		if (users.getIsActive() == 0) {
+			throw new IllegalArgumentException("User is inactive.");
+		}
 
 		// Pick the first ACTIVE user
 		for (User user : userDetailList) {
 			if (user.getIsActive() == 1) {
-				UserDto dto = new UserDto();
-				dto.setId(user.getId());
-				dto.setEmail(user.getEmail());
-				dto.setUsername(user.getUsername());
-				dto.setMobilenumber(user.getMobilenumber());
-				dto.setIsActive(user.getIsActive());
-				dto.setCreatedBy(user.getCreatedBy());
-				 dto.setRole(user.getRoles().getName()); // Uncomment if needed
-				return dto;
+				UserDto userDto = UserMapper.toDto(user);
+				return userDto;
 			}
 		}
 
@@ -140,29 +139,12 @@ public class UserServiceImpl implements UserService {
 		User savedUser = userDetailRepo.save(user);
 
 		// 6. Map back to DTO
-		UserDto savedDto = new UserDto();
-		savedDto.setId(savedUser.getId());
-		savedDto.setUsername(savedUser.getUsername());
-		savedDto.setEmail(savedUser.getEmail());
-		savedDto.setMobilenumber(savedUser.getMobilenumber());
-		savedDto.setIsActive(savedUser.getIsActive());
-		savedDto.setCreatedBy(savedUser.getCreatedBy());
-		savedDto.setUpdatedBy(savedUser.getUpdatedBy());
-		// Add roles if needed
-
-		if (savedUser.getRoles() != null) {
-			savedDto.setRole(savedUser.getRoles().getName());
-		}
-		return savedDto;
+		UserDto savedUserDto = UserMapper.toDto(savedUser);
+		return savedUserDto;
 	}
 
 	private Role checkRoleExist() {
 		ERole defaultRole = ERole.ROLE_MODERATOR;
-
-//	    Role role = roleRepo.findByName(defaultRole.name());
-//		if (role != null) {
-//	        return role;
-//	    }
 		Optional<Role> optionalRole = roleRepo.findByName(defaultRole.name());
 		Role role = null;
 		if (optionalRole.isEmpty()) {
@@ -181,22 +163,13 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public List<UserDto> getAllUsers() {
 		List<User> users = (List<User>) userDetailRepo.findAll();
-	    List<UserDto> userDetailDtoList = new ArrayList<>();
+		List<UserDto> userDetailDtoList = new ArrayList<>();
 
-	    for (User user : users) {
-	        UserDto dto = new UserDto();
-	        dto.setId(user.getId());
-	        dto.setEmail(user.getEmail());
-	        dto.setUsername(user.getUsername());
-	        dto.setMobilenumber(user.getMobilenumber());
-	        // Set single role as string
-	        if (user.getRoles() != null) {
-	            dto.setRole(user.getRoles().getName());
-	        }
-	        userDetailDtoList.add(dto);
-	    }
+		for (User user : users) {
+			userDetailDtoList.add(UserMapper.toDto(user));
+		}
 
-	    return userDetailDtoList;
+		return userDetailDtoList;
 	}
 
 	@Override
@@ -215,18 +188,91 @@ public class UserServiceImpl implements UserService {
 		return roleDtoList;
 	}
 
-	/*
-	 * @Override public UserDto getUser(UserDto userDetailDto) { // TODO
-	 * Auto-generated method stub return null; }
-	 * 
-	 * @Override public UserDto addUser(UserDto userDetailDto) { // TODO
-	 * Auto-generated method stub return null; }
-	 * 
-	 * @Override public List<UserDto> getAllUsers() { // TODO Auto-generated method
-	 * stub return null; }
-	 * 
-	 * @Override public List<RoleDto> getAllRoles() { // TODO Auto-generated method
-	 * stub return null; }
-	 */
+	@Override
+	public UserDto updateUser(Long id, UserDto dto) {
+		User user = userDetailRepo.findById(id)
+				.orElseThrow(() -> new UserNotFoundException("User with ID " + id + " not found"));
+
+		// user.setName(dto.getName());
+		user.setEmail(dto.getEmail());
+		// user.setRoles(dto.getRole().get);
+
+		if (dto.getRole() != null && !dto.getRole().isEmpty()) {
+			String rolesAsString = String.join(", ", dto.getRole());
+
+			// Role role = roleRepo.findByName(userDetailDto.getRole());
+			Optional<Role> optionalRole = roleRepo.findByName(rolesAsString);
+			Role role = null;
+			if (optionalRole.isEmpty()) {
+				role = checkRoleExist(); // fallback to default enum role
+			} else {
+				role = optionalRole.get();
+			}
+			user.setRoles(role);
+
+		}
+
+		User updatedUser = userDetailRepo.save(user);
+		return UserMapper.toDto(updatedUser);
+	}
+
+	@Override
+	public UserDto partiallyUpdateUser(Long id, UserDto dto) {
+		User user = userDetailRepo.findById(id)
+				.orElseThrow(() -> new UserNotFoundException("User with ID " + id + " not found"));
+
+		if (dto.getEmail() != null)
+			user.setEmail(dto.getEmail());
+		if (dto.getRole() != null && !dto.getRole().isEmpty()) {
+			String rolesAsString = String.join(", ", dto.getRole());
+
+			// Role role = roleRepo.findByName(userDetailDto.getRole());
+			Optional<Role> optionalRole = roleRepo.findByName(rolesAsString);
+			Role role = null;
+			if (optionalRole.isEmpty()) {
+				role = checkRoleExist(); // fallback to default enum role
+			} else {
+				role = optionalRole.get();
+			}
+			user.setRoles(role);
+
+		}
+
+		User updatedUser = userDetailRepo.save(user);
+		return UserMapper.toDto(updatedUser);
+	}
+
+	@Override
+	public void deleteUser(Long id) {
+		User user = userDetailRepo.findById(id).orElseThrow(() -> new UserNotFoundException("User not found"));
+		userDetailRepo.delete(user);
+	}
+
+	@Override
+	public UserDto deactivateUser(Long id) {
+		User user = userDetailRepo.findById(id).orElseThrow(() -> new UserNotFoundException("User not found"));
+
+		if (user.getIsActive() == 0) {
+			throw new UserAlreadyInactiveException("User is already deactivated");
+		}
+
+		user.setIsActive(0);
+		User updatedUser = userDetailRepo.save(user);
+		return UserMapper.toDto(updatedUser);
+	}
+
+	@Override
+	public UserDto activateUser(Long id) {
+		User user = userDetailRepo.findById(id).orElseThrow(() -> new UserNotFoundException("User not found"));
+
+		if (user.getIsActive() == 1) {
+			throw new RuntimeException("User is already active");
+		}
+
+		user.setIsActive(1);
+		User updatedUser = userDetailRepo.save(user);
+		return UserMapper.toDto(updatedUser);
+	}
+
 
 }

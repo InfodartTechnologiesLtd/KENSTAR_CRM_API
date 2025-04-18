@@ -14,4 +14,16 @@ public interface CompanyService {
 
 	public CompanyDto getCompany(CompanyDto companyDto);
 
+	
+	
+	CompanyDto addCompany(CompanyDto companyDto, Long userId);
+
+	public CompanyDto getCompanyById(Integer companyId);
+
+    List<CompanyDto> getAllCompanies();
+
+   public CompanyDto updateCompany(Integer companyId, CompanyDto companyDto);
+
+    void deleteCompany(Integer companyId);
+    
 }
