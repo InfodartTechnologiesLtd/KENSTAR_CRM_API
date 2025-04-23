@@ -18,7 +18,7 @@ public class CompanyMapper {
         }
 
         CompanyDto companyDto = new CompanyDto();
-        companyDto.setCompanyId(company.getCompanyId());
+        //companyDto.setCompanyId(company.getCompanyId());
         companyDto.setCompanyName(company.getCompanyName());
         companyDto.setCompanyCode(company.getCompanyCode());
         // Optionally, map other fields if needed
@@ -45,7 +45,7 @@ public class CompanyMapper {
         }
 
         Company company = new Company();
-        company.setCompanyId(companyDto.getCompanyId());
+        //company.setCompanyId(companyDto.getCompanyId());
         company.setCompanyName(companyDto.getCompanyName());
         company.setCompanyCode(companyDto.getCompanyCode());
         // Optionally, map other fields if needed

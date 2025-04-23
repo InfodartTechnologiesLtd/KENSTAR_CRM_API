@@ -4,7 +4,7 @@ public class CompanyDto {
 
 	private Long id;
 
-	private Integer companyId;
+	//private Integer companyId;
 	private String companyName;
 	private String companyCode;
 
@@ -16,13 +16,13 @@ public class CompanyDto {
 		this.id = id;
 	}
 
-	public Integer getCompanyId() {
-		return companyId;
-	}
-
-	public void setCompanyId(Integer companyId) {
-		this.companyId = companyId;
-	}
+//	public Integer getCompanyId() {
+//		return companyId;
+//	}
+//
+//	public void setCompanyId(Integer companyId) {
+//		this.companyId = companyId;
+//	}
 
 	public String getCompanyName() {
 		return companyName;

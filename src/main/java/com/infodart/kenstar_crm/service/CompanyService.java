@@ -8,22 +8,20 @@ import com.infodart.kenstar_crm.dto.UserDto;
 
 public interface CompanyService {
 
-	public CompanyDto addCompany(CompanyDto companyDto);
+	// public CompanyDto addCompany(CompanyDto companyDto);
 
 	public List<CompanyDto> getAllCompany();
 
 	public CompanyDto getCompany(CompanyDto companyDto);
 
-	
-	
-	CompanyDto addCompany(CompanyDto companyDto, Long userId);
+	CompanyDto addCompany(Long userId, CompanyDto companyDto);
 
 	public CompanyDto getCompanyById(Integer companyId);
 
-    List<CompanyDto> getAllCompanies();
+	List<CompanyDto> getAllCompanies();
 
-   public CompanyDto updateCompany(Integer companyId, CompanyDto companyDto);
+	public CompanyDto updateCompany(Integer companyId, CompanyDto companyDto);
 
-    void deleteCompany(Integer companyId);
-    
+	void deleteCompany(Integer companyId);
+
 }

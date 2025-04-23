@@ -50,7 +50,7 @@ public class UserController {
 					"Invalid input: username, mobile number, and email are required", null);
 			return ResponseEntity.badRequest().body(responseDto);
 		}
-		try {
+//		try {
 
 			UserDto userDto = userService.getUser(userDetailDto);
 			if (null == userDto || userDto.getId() == null || userDto.getIsActive() == 0) {
@@ -60,14 +60,14 @@ public class UserController {
 				ResponseDto<UserDto> responseDto = ResponseDto.success("200", "User found successfully", userDto);
 				return ResponseEntity.ok(responseDto);
 			}
-		} catch (Exception e) {
-			// Log the error for debugging (optional)
-			e.printStackTrace();
-
-			ResponseDto<UserDto> responseDto = ResponseDto.error("500", "An error occurred while retrieving the user",
-					null);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseDto);
-		}
+//		} catch (Exception e) {
+//			// Log the error for debugging (optional)
+//			e.printStackTrace();
+//
+//			ResponseDto<UserDto> responseDto = ResponseDto.error("500", "An error occurred while retrieving the user",
+//					null);
+//			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseDto);
+//		}
 	}
 
 	@GetMapping(value = "/getAllUser")
@@ -79,17 +79,17 @@ public class UserController {
 			ResponseDto<List<UserDto>> responseDto = ResponseDto.error("204", "No users found", null);
 			return ResponseEntity.status(HttpStatus.NO_CONTENT).body(responseDto);
 		}
-		try {
+//		try {
 			ResponseDto<List<UserDto>> responseDto = ResponseDto.success("200", "User list retrieved successfully",
 					userDtoList);
 			return ResponseEntity.ok(responseDto);
 
-		} catch (Exception e) {
-			e.printStackTrace(); // Optional: use proper logging instead
-			ResponseDto<List<UserDto>> responseDto = ResponseDto.error("500", "An error occurred while fetching users",
-					null);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseDto);
-		}
+//		} catch (Exception e) {
+//			e.printStackTrace(); // Optional: use proper logging instead
+//			ResponseDto<List<UserDto>> responseDto = ResponseDto.error("500", "An error occurred while fetching users",
+//					null);
+//			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseDto);
+//		}
 
 	}
 
@@ -102,7 +102,7 @@ public class UserController {
 			return ResponseEntity.badRequest().body(responseDto);
 		}
 
-		try {
+//		try {
 			UserDto userDto = userService.addUser(userDetailDto);
 
 			if (userDto == null || userDto.getId() == null) {
@@ -113,12 +113,12 @@ public class UserController {
 			ResponseDto<UserDto> responseDto = ResponseDto.success("201", "User created successfully", userDto);
 			return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
 
-		} catch (Exception e) {
-			e.printStackTrace(); // Optional: use proper logging instead
-			ResponseDto<UserDto> responseDto = ResponseDto.error("500", "An error occurred while creating the user",
-					null);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseDto);
-		}
+//		} catch (Exception e) {
+//			e.printStackTrace(); // Optional: use proper logging instead
+//			ResponseDto<UserDto> responseDto = ResponseDto.error("500", "An error occurred while creating the user",
+//					null);
+//			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseDto);
+//		}
 
 	}
 
@@ -129,17 +129,17 @@ public class UserController {
 			ResponseDto<UserDto> responseDto = ResponseDto.error("400", "User details must not be null", null);
 			return ResponseEntity.badRequest().body(responseDto);
 		}
-		try {
+//		try {
 			UserDto updatedUser = userService.updateUser(id, userDetailDto);
 			// return ResponseEntity.ok(updatedUser);
 			ResponseDto<UserDto> responseDto = ResponseDto.success("200", "User updated successfully", updatedUser);
 			return ResponseEntity.ok(responseDto);
-		} catch (Exception e) {
-			e.printStackTrace(); // Optional: use proper logging instead
-			ResponseDto<UserDto> responseDto = ResponseDto.error("500", "An error occurred while update the user",
-					null);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseDto);
-		}
+//		} catch (Exception e) {
+//			e.printStackTrace(); // Optional: use proper logging instead
+//			ResponseDto<UserDto> responseDto = ResponseDto.error("500", "An error occurred while update the user",
+//					null);
+//			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseDto);
+//		}
 	}
 
 	@PatchMapping("/{id}")
@@ -151,65 +151,64 @@ public class UserController {
 			ResponseDto<UserDto> responseDto = ResponseDto.error("400", "User details must not be null", null);
 			return ResponseEntity.badRequest().body(responseDto);
 		}
-		try {
+//		try {
 			UserDto updatedUser = userService.partiallyUpdateUser(id, userDetailDto);
 			// return ResponseEntity.ok(updatedUser);
 			ResponseDto<UserDto> responseDto = ResponseDto.success("200", "User updated successfully", updatedUser);
 			return ResponseEntity.ok(responseDto);
-		} catch (Exception e) {
-			e.printStackTrace(); // Optional: use proper logging instead
-			ResponseDto<UserDto> responseDto = ResponseDto.error("500", "An error occurred while update the user",
-					null);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseDto);
-		}
+//		} catch (Exception e) {
+//			e.printStackTrace(); // Optional: use proper logging instead
+//			ResponseDto<UserDto> responseDto = ResponseDto.error("500", "An error occurred while update the user",
+//					null);
+//			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseDto);
+//		}
 	}
 
 	@DeleteMapping("/{id}")
 	@Operation(summary = "Delete users", description = "Delete user details into the database")
 	public ResponseEntity<ResponseDto<UserDto>> deleteUser(@PathVariable Long id) {
-		try {
+//		try {
 			userService.deleteUser(id);
 			UserDto user = new UserDto();
 			ResponseDto<UserDto> responseDto = ResponseDto.success("200", "User deleted successfully", user);
 			return ResponseEntity.ok(responseDto);
-		} catch (Exception e) {
-			e.printStackTrace(); // Optional: use proper logging instead
-			ResponseDto<UserDto> responseDto = ResponseDto.error("500", "An error occurred while delete the user",
-					null);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseDto);
-		}
+//		} catch (Exception e) {
+//			e.printStackTrace(); // Optional: use proper logging instead
+//			ResponseDto<UserDto> responseDto = ResponseDto.error("500", "An error occurred while delete the user",
+//					null);
+//			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseDto);
+//		}
 	}
 
 	@PatchMapping("/{id}/deactivate")
 	@Operation(summary = "Deactivate users", description = "Deactivate user details into the database")
 	public ResponseEntity<ResponseDto<UserDto>> deactivateUser(@PathVariable Long id) {
-		try {
+//		try {
 			UserDto user = userService.deactivateUser(id);
 			// return ResponseEntity.ok(user);
 			ResponseDto<UserDto> responseDto = ResponseDto.success("200", "User de-activated successfully", user);
 			return ResponseEntity.ok(responseDto);
-		} catch (Exception e) {
-			e.printStackTrace(); // Optional: use proper logging instead
-			ResponseDto<UserDto> responseDto = ResponseDto.error("500", "An error occurred while de-activate the user",
-					null);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseDto);
-		}
+//		} catch (Exception e) {
+//			e.printStackTrace(); // Optional: use proper logging instead
+//			ResponseDto<UserDto> responseDto = ResponseDto.error("500", "An error occurred while de-activate the user",null);
+//			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseDto);
+//		}
 	}
 
 	@PatchMapping("/{id}/activate")
 	@Operation(summary = "Activate users", description = "Activate user details into the database")
 	public ResponseEntity<ResponseDto<UserDto>> activateUser(@PathVariable Long id) {
-		try {
+//		try {
 			UserDto user = userService.activateUser(id);
 			// return ResponseEntity.ok(user);
 			ResponseDto<UserDto> responseDto = ResponseDto.success("200", "User activated successfully", user);
 			return ResponseEntity.ok(responseDto);
-		} catch (Exception e) {
-			e.printStackTrace(); // Optional: use proper logging instead
-			ResponseDto<UserDto> responseDto = ResponseDto.error("500", "An error occurred while activate the user",
-					null);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseDto);
-		}
+//		} catch (Exception e) {
+//			e.printStackTrace(); // Optional: use proper logging instead
+//			ResponseDto<UserDto> responseDto = ResponseDto.error("500", "An error occurred while activate the user",
+//					null);
+//			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseDto);
+//		}
 	}
 
 	@GetMapping(value = "/getRoles")
@@ -221,15 +220,15 @@ public class UserController {
 			ResponseDto<List<RoleDto>> responseDto = ResponseDto.error("204", "No roles found", null);
 			return ResponseEntity.status(HttpStatus.NO_CONTENT).body(responseDto);
 		}
-		try {
+//		try {
 			ResponseDto<List<RoleDto>> responseDto = ResponseDto.success("200", "Roles fetched successfully", roles);
 			return ResponseEntity.ok(responseDto);
-		} catch (Exception e) {
-			e.printStackTrace(); // Optional: use proper logging instead
-			ResponseDto<List<RoleDto>> responseDto = ResponseDto.error("500",
-					"An error occurred while fetching the roles", null);
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseDto);
-		}
+//		} catch (Exception e) {
+//			e.printStackTrace(); // Optional: use proper logging instead
+//			ResponseDto<List<RoleDto>> responseDto = ResponseDto.error("500",
+//					"An error occurred while fetching the roles", null);
+//			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseDto);
+//		}
 	}
 
 }

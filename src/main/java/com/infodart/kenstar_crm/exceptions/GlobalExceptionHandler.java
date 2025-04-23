@@ -53,6 +53,13 @@ public class GlobalExceptionHandler {
     }
     
     
+    @ExceptionHandler(UserAlreadyExistException.class)
+    public ResponseEntity<ResponseDto<Object>> handleAlreadyExist(UserAlreadyExistException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(ResponseDto.error("400", ex.getMessage(), null));
+    }
+    
+    
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidation(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();

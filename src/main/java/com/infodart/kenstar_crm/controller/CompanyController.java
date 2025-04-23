@@ -53,17 +53,17 @@ public class CompanyController {
 	
 	
 	// Add a new company
-	@PostMapping(value = "/addCompany")
+	@PostMapping(value = "/addCompany/{userId}")
     @Operation(summary = "Add Company", description = "Add company details into the database")
-    public ResponseEntity<ResponseDto<CompanyDto>> addCompany(@RequestBody CompanyDto companyDto) {
-        try {
-            CompanyDto createdCompany = companyService.addCompany(companyDto);
+    public ResponseEntity<ResponseDto<CompanyDto>> addCompany(@PathVariable Long userId,@RequestBody CompanyDto companyDto) {
+//        try {
+            CompanyDto createdCompany = companyService.addCompany(userId, companyDto);
             ResponseDto<CompanyDto> responseDto = ResponseDto.success("200", "Company created successfully", createdCompany);
             return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
-        } catch (Exception e) {
-            ResponseDto<CompanyDto> responseDto = ResponseDto.error("500", "Failed to create company", null);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseDto);
-        }
+//        } catch (Exception e) {
+//            ResponseDto<CompanyDto> responseDto = ResponseDto.error("500", "Failed to create company", null);
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseDto);
+//        }
     }
 
     // Get company by ID

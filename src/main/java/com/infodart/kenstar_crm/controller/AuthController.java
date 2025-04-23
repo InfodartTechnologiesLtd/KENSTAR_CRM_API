@@ -26,11 +26,11 @@ public class AuthController {
 	@Autowired
 	private AuthService authService;
 
-	@PostMapping(value = "/registerUser")
-	public ResponseEntity<ResponseDto<UserDto>> addUser(@RequestBody UserDto userDetailDto) {
-		UserDto userdto = authService.registerUser(userDetailDto);
-		return ResponseEntity.ok(ResponseDto.success("200", "User created successfully", userdto));
-	}
+//	@PostMapping(value = "/registerUser")
+//	public ResponseEntity<ResponseDto<UserDto>> addUser(@RequestBody UserDto userDetailDto) {
+//		UserDto userdto = authService.registerUser(userDetailDto);
+//		return ResponseEntity.ok(ResponseDto.success("200", "User created successfully", userdto));
+//	}
 
 //	@PostMapping(value = "/setPin")
 //	public ResponseEntity<ResponseDto<PinDto>> setPin(@RequestBody PinDto userDetailDto) {
@@ -72,7 +72,7 @@ public class AuthController {
 	    PinDto updatedPinDto = authService.forgotPin(userId, pinDto);
 
 	    ResponseDto<PinDto> response = ResponseDto.success(
-	            "200", "PIN updated successfully", updatedPinDto);
+	            "200", "Default PIN 1234 updated successfully. Please change it after login.", updatedPinDto);
 
 	    return ResponseEntity.ok(response);
 	}

@@ -21,7 +21,8 @@ public interface CompanyRepository extends CrudRepository<Company, Long>{
     List<Company> findByUser_Id(Long userId);
 
     // Optional: fetch by companyCode (if you plan to use it for uniqueness checks)
-    Company findByCompanyCode(String companyCode);
+    Optional<Company> findByCompanyCode(String companyCode);
+    Optional<Company> findByCompanyName(String companyName);
     
     Optional<Company>  findById(Integer companyId);
 

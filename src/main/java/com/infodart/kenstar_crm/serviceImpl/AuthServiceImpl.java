@@ -44,7 +44,7 @@ public class AuthServiceImpl implements AuthService {
 
 	@Autowired
 	private UserRepository userRepository;
-	
+
 	@Override
 	public UserDto registerUser(UserDto userDetailDto) {
 		List<User> userDetailList = authRepository.findAllByUsername(userDetailDto.getUsername());
@@ -64,17 +64,16 @@ public class AuthServiceImpl implements AuthService {
 
 			String rolesAsString = String.join(", ", userDetailDto.getRole());
 
-			//Role role =  roleRepo.findByName(rolesAsString);
-			Optional<Role> optionalRole= roleRepo.findByName(rolesAsString);
-			Role role =null;
+			// Role role = roleRepo.findByName(rolesAsString);
+			Optional<Role> optionalRole = roleRepo.findByName(rolesAsString);
+			Role role = null;
 			if (optionalRole.isEmpty()) {
-				 role = new Role();
+				role = new Role();
 				role = checkRoleExist();
 			}
-			//userDetail.setRoles(Set.of(role));
+			// userDetail.setRoles(Set.of(role));
 			userDetail.setRoles(role);
 
-			
 			userDetail.setCreatedBy(userDetailDto.getCreatedBy());
 			// userDetail.setCreatedDateTime(userDetailDto.getCreatedDateTime());
 			userDetail.setUpdatedBy(userDetailDto.getUpdatedBy());
@@ -131,118 +130,171 @@ public class AuthServiceImpl implements AuthService {
 //			} else {
 //				System.out.println("User already exist");
 //			}
-			
-			
-			
-			Optional<User> optionalUser = userRepository.findById(pinDto.getUserId());
-	        if (!optionalUser.isPresent()) {
-	            throw new IllegalStateException("User not found with ID: " + pinDto.getUserId());
-	        }
 
-	        // Check if the user already has a PIN
-	        if (pinRepository.existsByUserId(pinDto.getUserId())) {
-	            throw new IllegalStateException("PIN already exists for user ID: " + pinDto.getUserId());
-	        }
+		Optional<User> optionalUser = userRepository.findById(pinDto.getUserId());
+		if (!optionalUser.isPresent()) {
+			throw new IllegalStateException("User not found with ID: " + pinDto.getUserId());
+		}
 
-	        // Hash the PIN using BCrypt
-	        String hashedPin = BCrypt.hashpw(pinDto.getPinCode(), BCrypt.gensalt());
+		// Check if the user already has a PIN
+//	        if (pinRepository.existsByUserId(pinDto.getUserId())) {
+//	            throw new IllegalStateException("PIN already exists for user ID: " + pinDto.getUserId());
+//	        }
 
-	        // Create and save the Pin entity
-	        Pin pin = new Pin();
-	        pin.setUser(optionalUser.get());
-	        pin.setPinCode(hashedPin); // Store the hashed PIN
+		// Fetch PIN detail by user ID
+		Optional<Pin> optionalPin = java.util.Optional.empty();
+		optionalPin = pinRepository.findByUser_Id(pinDto.getUserId());
 
-	        pinRepository.save(pin);
+		if (!optionalPin.isEmpty())
+			throw new ResourceNotFoundException("PIN already exists for user ID: " + pinDto.getUserId());
 
-	        // Prepare PinDto response
-	        PinDto savedPinDto = new PinDto();
-	        savedPinDto.setUserId(pinDto.getUserId());
-	        savedPinDto.setPinCode(hashedPin);  // You may choose to send the hashed PIN, but normally, you'd omit it for security reasons.
+		// Find company by ID, it returns an Optional
+		Optional<Company> companyOptional = companyRepository.findById(pinDto.getCompanyId());
 
-	        return savedPinDto;
-	        
-		//}
-		 
+		// Check if the company exists
+		if (!companyOptional.isPresent()) {
+			// If the company doesn't exist, throw a custom exception or handle it
+			// accordingly
+			throw new ResourceNotFoundException("Company with ID " + pinDto.getCompanyId() + " not found");
+		}
+
+		// Get the Company entity from Optional
+		Company company = companyOptional.get();
+
+		// Hash the PIN using BCrypt
+		String hashedPin = BCrypt.hashpw(pinDto.getPinCode(), BCrypt.gensalt());
+
+		// Create and save the Pin entity
+		Pin pin = new Pin();
+		pin.setUser(optionalUser.get());
+		pin.setPinCode(hashedPin); // Store the hashed PIN
+		pin.setCompany(company);
+		pinRepository.save(pin);
+
+		// Prepare PinDto response
+		PinDto savedPinDto = new PinDto();
+		savedPinDto.setUserId(pinDto.getUserId());
+		savedPinDto.setPinCode(hashedPin); // You may choose to send the hashed PIN, but normally, you'd omit it for
+											// security reasons.
+
+		return savedPinDto;
+
+		// }
+
 	}
 
 	@Override
 	public PinDto forgotPin(Long userId, PinDto pinDto) {
-	    Optional<User> optionalUser = userRepository.findById(userId);
+		// Check if user exists 
+				User user = userRepository.findById(userId)
+						.orElseThrow(() -> new UserNotFoundException("User with ID " + userId + " not found"));
 
-	    if (!optionalUser.isPresent()) {
-	        throw new ResourceNotFoundException("User not found with given input.");
-	    }
+				// Fetch PIN detail by user ID
+				Pin pinDetail = pinRepository.findByUser_Id(userId)
+						.orElseThrow(() -> new ResourceNotFoundException("PIN not found with given input. Create your PIN."));
 
-	    //User user = optionalUser.get();
+				System.out.println("pinDto.getPinCode() : " + pinDetail.getPinCode()); 
+				
+				// Find company by ID, it returns an Optional
+				Optional<Company> companyOptional = companyRepository.findById(pinDto.getCompanyId());
 
-	    // Hash new PIN
-	    String hashedPin = BCrypt.hashpw(pinDto.getPinCode(), BCrypt.gensalt());
+				// Check if the company exists
+				if (!companyOptional.isPresent()) {
+					// If the company doesn't exist, throw a custom exception or handle it
+					// accordingly
+					throw new ResourceNotFoundException("Company with ID " + pinDto.getCompanyId() + " not found");
+				}
+
+				// Get the Company entity from Optional
+				Company company = companyOptional.get();
+
+		// Hash new PIN
+		String hashedPin = BCrypt.hashpw("1234", BCrypt.gensalt());
 
 //	    user.setPin(hashedPin); // assuming you have a setPin method
 //	    userRepository.save(user);
 
-	    
-	 // Create and save the Pin entity
-        Pin pin = new Pin();
-        pin.setUser(optionalUser.get());
-        pin.setPinCode(hashedPin); // Store the hashed PIN
+		// Create and save the Pin entity
+		//Pin pin = new Pin();
+		//pin.setUser(user);
+		pinDetail.setPinCode(hashedPin); // Store the hashed PIN
+		pinDetail.setCompany(company);
+		pinRepository.save(pinDetail);
 
-        pinRepository.save(pin);
-        
-	    // Prepare response
-	    PinDto responseDto = new PinDto();
-	    responseDto.setPinCode("****"); // Masked in response for security
+		// Prepare response
+		PinDto responseDto = new PinDto();
+		responseDto.setPinCode("****"); // Masked in response for security
 
-	    return responseDto;
+		return responseDto;
 	}
 
-	 
-	
-	
 	@Override
-    public PinDto changePin(Long userId, PinDto requestDto) {
+	public PinDto changePin(Long userId, PinDto pinDto) {
 
-        // Input validation
-        if (requestDto.getOldPinCode() == null || requestDto.getOldPinCode().isBlank()) {
-            throw new IllegalArgumentException("Old PIN must not be empty.");
-        }
+		// Input validation
+		if (pinDto.getOldPinCode() == null || pinDto.getOldPinCode().isBlank()) {
+			throw new IllegalArgumentException("Old PIN must not be empty.");
+		}
 
-        if (requestDto.getPinCode() == null || requestDto.getPinCode().isBlank()) {
-            throw new IllegalArgumentException("New PIN must not be empty.");
-        }
+		if (pinDto.getPinCode() == null || pinDto.getPinCode().isBlank()) {
+			throw new IllegalArgumentException("New PIN must not be empty.");
+		}
 
-        if (requestDto.getOldPinCode().equals(requestDto.getPinCode())) {
-            throw new IllegalArgumentException("New PIN cannot be the same as the old PIN.");
-        }
+		if (pinDto.getOldPinCode().equals(pinDto.getPinCode())) {
+			throw new IllegalArgumentException("New PIN cannot be the same as the old PIN.");
+		}
 
-        // Check if user exists
-        if (!userRepository.existsById(userId)) {
-            throw new ResourceNotFoundException("User not found with given input.");
-        }
+		// Check if user exists
+//		if (!userRepository.findById(userId)) {
+//			throw new ResourceNotFoundException("User not found with given input.");
+//		}
+		
+		// Check if user exists 
+		User user = userRepository.findById(userId)
+				.orElseThrow(() -> new UserNotFoundException("User with ID " + userId + " not found"));
 
-        // Fetch PIN detail by user ID
-        Pin pinDetail = pinRepository.findByUser_Id(userId)
-        		.orElseThrow(() -> new ResourceNotFoundException("PIN not found with given input."));
+		// Fetch PIN detail by user ID
+		Pin pinDetail = pinRepository.findByUser_Id(userId)
+				.orElseThrow(() -> new ResourceNotFoundException("PIN not found with given input."));
 
-        
+		System.out.println("pinDto.getPinCode() : " + pinDetail.getPinCode()); 
+		
+		// Find company by ID, it returns an Optional
+		Optional<Company> companyOptional = companyRepository.findById(pinDto.getCompanyId());
 
-        // Match old PIN
-        if (!BCrypt.checkpw(requestDto.getOldPinCode(), pinDetail.getOldPinCode())) {
-            throw new IllegalArgumentException("Old PIN is incorrect.");
-        }
+		// Check if the company exists
+		if (!companyOptional.isPresent()) {
+			// If the company doesn't exist, throw a custom exception or handle it
+			// accordingly
+			throw new ResourceNotFoundException("Company with ID " + pinDto.getCompanyId() + " not found");
+		}
 
-        // Encrypt new PIN
-        String newEncryptedPin = BCrypt.hashpw(requestDto.getPinCode(), BCrypt.gensalt());
-        pinDetail.setPinCode(newEncryptedPin);
+		// Get the Company entity from Optional
+		Company company = companyOptional.get();
 
-        pinRepository.save(pinDetail);
+		System.out.println("Company name : " + company.getCompanyName()); 
+		
+		System.out.println("pinDto.getOldPinCode() : " + pinDto.getOldPinCode()); 
+		System.out.println("pinDetail.getOldPinCode() : " + pinDetail.getOldPinCode()); 
+		// Match old PIN
+		if (!BCrypt.checkpw(pinDto.getOldPinCode(), pinDetail.getPinCode())) {
+			throw new IllegalArgumentException("Old PIN is incorrect.");
+		}
 
-        // Return response with masked PIN
-        PinDto responseDto = new PinDto();
-        responseDto.setPinCode("****");
-        responseDto.setUserId(userId);
+		String oldPinCode = pinDetail.getPinCode();
+		// Encrypt new PIN
+		String newEncryptedPin = BCrypt.hashpw(pinDto.getPinCode(), BCrypt.gensalt());
+		pinDetail.setPinCode(newEncryptedPin);
+		pinDetail.setOldPinCode(oldPinCode);
+		pinDetail.setCompany(company);
+		pinRepository.save(pinDetail);
 
-        return responseDto;
-    }
+		// Return response with masked PIN
+		PinDto responseDto = new PinDto();
+		responseDto.setPinCode("****");
+		responseDto.setUserId(userId);
+
+		return responseDto;
+	}
 
 }

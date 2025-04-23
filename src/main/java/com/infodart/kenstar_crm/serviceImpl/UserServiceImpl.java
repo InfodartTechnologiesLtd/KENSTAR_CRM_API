@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 
 import com.infodart.kenstar_crm.dto.RoleDto;
@@ -13,6 +14,7 @@ import com.infodart.kenstar_crm.entity.ERole;
 import com.infodart.kenstar_crm.entity.Role;
 import com.infodart.kenstar_crm.entity.User;
 import com.infodart.kenstar_crm.exceptions.ResourceNotFoundException;
+import com.infodart.kenstar_crm.exceptions.UserAlreadyExistException;
 import com.infodart.kenstar_crm.exceptions.UserAlreadyInactiveException;
 import com.infodart.kenstar_crm.exceptions.UserNotFoundException;
 import com.infodart.kenstar_crm.mapper.UserMapper;
@@ -36,31 +38,35 @@ public class UserServiceImpl implements UserService {
 		if (userDetail == null)
 			throw new IllegalArgumentException("At least one of username, email, or mobile number is required.");
 
-		List<User> userDetailList = new ArrayList<>();
-
+		// List<User> userDetailList = new ArrayList<>();
+		Optional<User> optionalUser = java.util.Optional.empty();
 		if (!Utils.isNullOrEmpty(userDetail.getUsername())) {
-			userDetailList = userDetailRepo.findAllByUsername(userDetail.getUsername());
+			// userDetailList = userDetailRepo.findAllByUsername(userDetail.getUsername());
+			optionalUser = userDetailRepo.findByUsername(userDetail.getUsername());
 		} else if (!Utils.isNullOrEmpty(userDetail.getEmail())) {
-			userDetailList = userDetailRepo.findAllByEmail(userDetail.getEmail());
+			// userDetailList = userDetailRepo.findAllByEmail(userDetail.getEmail());
+			optionalUser = userDetailRepo.findByUsername(userDetail.getUsername());
 		} else if (!Utils.isNullOrEmpty(userDetail.getMobilenumber())) {
-			userDetailList = userDetailRepo.findAllByMobilenumber(userDetail.getMobilenumber());
+			// userDetailList =
+			// userDetailRepo.findAllByMobilenumber(userDetail.getMobilenumber());
+			optionalUser = userDetailRepo.findByUsername(userDetail.getUsername());
 		}
 
-		if (userDetailList.isEmpty())
+		if (optionalUser.isEmpty())
 			throw new ResourceNotFoundException("User not found with given input.");
 
-		User users = userDetailList.get(0);
+		User users = optionalUser.get();
 		if (users.getIsActive() == 0) {
 			throw new IllegalArgumentException("User is inactive.");
 		}
 
 		// Pick the first ACTIVE user
-		for (User user : userDetailList) {
-			if (user.getIsActive() == 1) {
-				UserDto userDto = UserMapper.toDto(user);
-				return userDto;
-			}
+		// for (User user : userDetailList) {
+		if (optionalUser.get().getIsActive() == 1) {
+			UserDto userDto = UserMapper.toDto(optionalUser.get());
+			return userDto;
 		}
+		// }
 
 		// No active user found
 		return null;
@@ -90,20 +96,30 @@ public class UserServiceImpl implements UserService {
 			throw new RuntimeException("Invalid role provided");
 		}
 
+		// boolean exists = userDetailRepo.findIdByUsername(userDetailDto.getUsername())
+		// != null;
 		// 2. Check for existing user (username/email/mobile)
-		if (!Utils.isNullOrEmpty(userDetailDto.getUsername())
-				&& userDetailRepo.existsByUsername(userDetailDto.getUsername())) {
-			throw new RuntimeException("Username already exists");
+		if (!Utils.isNullOrEmpty(userDetailDto.getUsername()) && existsByUsername(userDetailDto.getUsername())) {
+			throw new UserAlreadyExistException("Username already exists");
 		}
 
-		if (!Utils.isNullOrEmpty(userDetailDto.getEmail()) && userDetailRepo.existsByEmail(userDetailDto.getEmail())) {
-			throw new RuntimeException("Email already exists");
+		if (!Utils.isNullOrEmpty(userDetailDto.getEmail()) && existsByEmail(userDetailDto.getEmail())) {
+			throw new UserAlreadyExistException("Email already exists");
 		}
 
 		if (!Utils.isNullOrEmpty(userDetailDto.getMobilenumber())
-				&& userDetailRepo.existsByMobilenumber(userDetailDto.getMobilenumber())) {
-			throw new RuntimeException("Mobile number already exists");
+				&& existsByMobilenumber(userDetailDto.getMobilenumber())) {
+			throw new UserAlreadyExistException("Mobile number already exists");
 		}
+
+//		if (!Utils.isNullOrEmpty(userDetailDto.getEmail()) && userDetailRepo.existsByEmail(userDetailDto.getEmail())) {
+//			throw new RuntimeException("Email already exists");
+//		}
+//
+//		if (!Utils.isNullOrEmpty(userDetailDto.getMobilenumber())
+//				&& userDetailRepo.existsByMobilenumber(userDetailDto.getMobilenumber())) {
+//			throw new RuntimeException("Mobile number already exists");
+//		}
 
 		// 3. Map to entity
 		User user = new User();
@@ -113,7 +129,9 @@ public class UserServiceImpl implements UserService {
 
 		// Optional: encode password (recommended)
 		// user.setPassword(passwordEncoder.encode(userDetailDto.getPassword()));
-		user.setPassword(userDetailDto.getPassword());
+		// Hash the PIN using BCrypt
+		String hashedPin = BCrypt.hashpw(userDetailDto.getPassword(), BCrypt.gensalt());
+		user.setPassword(hashedPin);
 
 		user.setCreatedBy(userDetailDto.getCreatedBy());
 		user.setUpdatedBy(userDetailDto.getUpdatedBy());
@@ -136,11 +154,14 @@ public class UserServiceImpl implements UserService {
 		}
 
 		// 5. Save user
-		User savedUser = userDetailRepo.save(user);
-
+//		User savedUser = userDetailRepo.save(user);
 		// 6. Map back to DTO
-		UserDto savedUserDto = UserMapper.toDto(savedUser);
-		return savedUserDto;
+//		UserDto savedUserDto = UserMapper.toDto(savedUser);
+		// 7. Return saved user dto
+//		return savedUserDto;
+		
+		// Save user, Map back to DTO, Return saved user dto ( 5+6+7 )
+		return UserMapper.toDto(userDetailRepo.save(user));
 	}
 
 	private Role checkRoleExist() {
@@ -212,8 +233,8 @@ public class UserServiceImpl implements UserService {
 
 		}
 
-		User updatedUser = userDetailRepo.save(user);
-		return UserMapper.toDto(updatedUser);
+//		User updatedUser = userDetailRepo.save(user);
+		return UserMapper.toDto(userDetailRepo.save(user));
 	}
 
 	@Override
@@ -238,14 +259,22 @@ public class UserServiceImpl implements UserService {
 
 		}
 
-		User updatedUser = userDetailRepo.save(user);
-		return UserMapper.toDto(updatedUser);
+//		User updatedUser = userDetailRepo.save(user);
+		return UserMapper.toDto(userDetailRepo.save(user));
 	}
 
 	@Override
 	public void deleteUser(Long id) {
 		User user = userDetailRepo.findById(id).orElseThrow(() -> new UserNotFoundException("User not found"));
-		userDetailRepo.delete(user);
+		//userDetailRepo.delete(user);
+		
+		// instead of delete.. de-activate the user..
+		if (user.getIsActive() == 0) {
+			throw new UserAlreadyInactiveException("User is already deactivated");
+		}
+
+		user.setIsActive(0);
+		UserMapper.toDto(userDetailRepo.save(user));
 	}
 
 	@Override
@@ -257,22 +286,46 @@ public class UserServiceImpl implements UserService {
 		}
 
 		user.setIsActive(0);
-		User updatedUser = userDetailRepo.save(user);
-		return UserMapper.toDto(updatedUser);
+//		User updatedUser = userDetailRepo.save(user);
+		return UserMapper.toDto(userDetailRepo.save(user));
 	}
 
 	@Override
 	public UserDto activateUser(Long id) {
 		User user = userDetailRepo.findById(id).orElseThrow(() -> new UserNotFoundException("User not found"));
-
 		if (user.getIsActive() == 1) {
-			throw new RuntimeException("User is already active");
+			throw new UserAlreadyInactiveException("User is already active");
 		}
-
 		user.setIsActive(1);
-		User updatedUser = userDetailRepo.save(user);
-		return UserMapper.toDto(updatedUser);
+//		User updatedUser = userDetailRepo.save(user);
+		return UserMapper.toDto(userDetailRepo.save(user));
 	}
 
+	private boolean existsByUsername(String username) {
+		Optional<User> optionalUser = java.util.Optional.empty();
+		optionalUser = userDetailRepo.findByUsername(username);
+		if (optionalUser.isEmpty()) {
+			return false;
+		}
+		return true;
+	}
+
+	private boolean existsByEmail(String email) {
+		Optional<User> optionalUser = java.util.Optional.empty();
+		optionalUser = userDetailRepo.findByEmail(email);
+		if (optionalUser.isEmpty()) {
+			return false;
+		}
+		return true;
+	}
+
+	private boolean existsByMobilenumber(String mobileNumber) {
+		Optional<User> optionalUser = java.util.Optional.empty();
+		optionalUser = userDetailRepo.findByMobilenumber(mobileNumber);
+		if (optionalUser.isEmpty()) {
+			return false;
+		}
+		return true;
+	}
 
 }

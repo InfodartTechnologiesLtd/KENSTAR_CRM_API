@@ -17,7 +17,9 @@ public interface PinRepository extends CrudRepository<Pin, Long>{
 	
 	public Pin findByPinCode(String pincode);
 	
-	boolean existsByUserId(Long userId);
+//	boolean existsByUserId(Long userId);
+	
+	
 	
 	//public Pin findByUserId(Long userId);
 	Optional<Pin> findByUser_Id(Long userId);
