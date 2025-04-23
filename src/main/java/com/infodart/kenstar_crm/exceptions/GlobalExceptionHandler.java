@@ -67,9 +67,6 @@ public class GlobalExceptionHandler {
             .forEach(err -> errors.put(err.getField(), err.getDefaultMessage()));
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
-
-    
-
      
 }
 

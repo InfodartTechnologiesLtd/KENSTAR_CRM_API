@@ -9,19 +9,11 @@ import org.springframework.stereotype.Repository;
 
 import com.infodart.kenstar_crm.entity.Role;
 
-  
-
 @Repository
 public interface RoleRepo extends JpaRepository<Role, Long> {
-  //Optional<Role> findByName(ERole name); 
-	/*
-	 * @Query("SELECT r FROM Role r WHERE r.name = :name") Role findByName(String
-	 * name);
-	 */
-	
+
 	@Query("SELECT r FROM Role r WHERE r.name = :name")
 	Optional<Role> findByName(@Param("name") String name);
-	
-	//@Query("select r from Role r where r.name = ?1")
+
 	boolean existsByName(String name);
 }

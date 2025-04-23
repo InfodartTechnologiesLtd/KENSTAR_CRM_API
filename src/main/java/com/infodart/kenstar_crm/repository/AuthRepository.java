@@ -14,6 +14,4 @@ public interface AuthRepository extends CrudRepository<User, Long>{
 	
 	public User findAllById(int userId);
 	
-	
-
 }

@@ -20,20 +20,14 @@ public class RoleSeeder {
 		System.out.println(">>> Starting RoleSeeder..");
 		try {
 			for (ERole roleType : ERole.values()) {
-				System.out.println(">>> Checking role: {}"+ roleType.name());
+				System.out.println(">>> Checking role: {}" + roleType.name());
 				Optional<Role> optionalRole = roleRepo.findByName(roleType.name());
 				if (optionalRole.isEmpty()) {
-				    Role role = new Role();
-				    role.setName(roleType.name());
-				    roleRepo.save(role);
-				    System.out.println("Inserted role: " + roleType.name());
+					Role role = new Role();
+					role.setName(roleType.name());
+					roleRepo.save(role);
+					System.out.println("Inserted role: " + roleType.name());
 				}
-//				if (!roleRepo.existsByName(roleType.name())) {
-//					Role role = new Role();
-//					role.setName(roleType.name());
-//					roleRepo.save(role);
-//					System.out.println("Inserted role: " + roleType.name());
-//				}
 			}
 		} catch (Exception e) {
 			System.err.println("Error in RoleSeeder: " + e.getMessage());

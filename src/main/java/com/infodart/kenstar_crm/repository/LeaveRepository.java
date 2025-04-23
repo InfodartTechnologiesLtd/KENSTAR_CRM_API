@@ -5,8 +5,6 @@ import java.util.List;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
-import com.infodart.kenstar_crm.dto.LeaveDto;
-import com.infodart.kenstar_crm.entity.Company;
 import com.infodart.kenstar_crm.entity.Leave;
 
 @Repository

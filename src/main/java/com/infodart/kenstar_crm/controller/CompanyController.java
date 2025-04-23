@@ -17,8 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.infodart.kenstar_crm.dto.CompanyDto;
 import com.infodart.kenstar_crm.dto.ResponseDto;
-import com.infodart.kenstar_crm.dto.UserDto;
-import com.infodart.kenstar_crm.service.AuthService;
 import com.infodart.kenstar_crm.service.CompanyService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,98 +29,61 @@ public class CompanyController {
 	@Autowired
 	private CompanyService companyService;
 
-//	@PostMapping(value = "/addCompany")
-//	public ResponseEntity<ResponseDto<CompanyDto>> addCompany(@RequestBody CompanyDto companyDto) {
-//		CompanyDto comDto = companyService.addCompany(companyDto);
-//		return ResponseEntity.ok(ResponseDto.success("200", "Company added", comDto));
-//	}
-//
-//	@PostMapping(value = "/getCompany")
-//	public ResponseEntity<ResponseDto<CompanyDto>> getCompany(@RequestBody CompanyDto companyDto) {
-//		CompanyDto comDto = companyService.getCompany(companyDto);
-//		return ResponseEntity.ok(ResponseDto.success("200", "Company Data found", comDto));
-//	}
-//
-//	@GetMapping(value = "/getAllCompany")
-//	public ResponseEntity<ResponseDto<List<CompanyDto>>> getAllCompany() {
-//		List<CompanyDto> companyList = companyService.getAllCompany();
-//		return ResponseEntity.ok(ResponseDto.success("200", "Company list found", companyList));
-//	}
-	
-	
-	
-	
 	// Add a new company
 	@PostMapping(value = "/addCompany/{userId}")
-    @Operation(summary = "Add Company", description = "Add company details into the database")
-    public ResponseEntity<ResponseDto<CompanyDto>> addCompany(@PathVariable Long userId,@RequestBody CompanyDto companyDto) {
-//        try {
-            CompanyDto createdCompany = companyService.addCompany(userId, companyDto);
-            ResponseDto<CompanyDto> responseDto = ResponseDto.success("200", "Company created successfully", createdCompany);
-            return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
-//        } catch (Exception e) {
-//            ResponseDto<CompanyDto> responseDto = ResponseDto.error("500", "Failed to create company", null);
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseDto);
-//        }
-    }
+	@Operation(summary = "Add Company", description = "Add company details into the database")
+	public ResponseEntity<ResponseDto<CompanyDto>> addCompany(@PathVariable Long userId,
+			@RequestBody CompanyDto companyDto) {
+		CompanyDto createdCompany = companyService.addCompany(userId, companyDto);
+		ResponseDto<CompanyDto> responseDto = ResponseDto.success("200", "Company created successfully",
+				createdCompany);
+		return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
+	}
 
-    // Get company by ID
-    @GetMapping("/{companyId}")
-    @Operation(summary = "Get Company", description = "Get company details into the database")
-    public ResponseEntity<ResponseDto<CompanyDto>> getCompanyById(@PathVariable Integer companyId) {
-        try {
-            CompanyDto companyDto = companyService.getCompanyById(companyId);
-            ResponseDto<CompanyDto> responseDto = ResponseDto.success("200", "Company found", companyDto);
-            return ResponseEntity.ok(responseDto);
-        } catch (Exception e) {
-            ResponseDto<CompanyDto> responseDto = ResponseDto.error("404", "Company not found", null);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseDto);
-        }
-    }
+	// Get company by ID
+	@GetMapping("/{companyId}")
+	@Operation(summary = "Get Company", description = "Get company details into the database")
+	public ResponseEntity<ResponseDto<CompanyDto>> getCompanyById(@PathVariable Integer companyId) {
+		CompanyDto companyDto = companyService.getCompanyById(companyId);
+		ResponseDto<CompanyDto> responseDto = ResponseDto.success("200", "Company found", companyDto);
+		return ResponseEntity.ok(responseDto);
 
-    // Get all companies
-    @GetMapping
-    @Operation(summary = "Get all Company", description = "Get all company details into the database")
-    public ResponseEntity<ResponseDto<List<CompanyDto>>> getAllCompanies() {
-        try {
-            List<CompanyDto> companyDtoList = companyService.getAllCompanies();
-            if (companyDtoList.isEmpty()) {
-                ResponseDto<List<CompanyDto>> responseDto = ResponseDto.error("204", "No companies found", null);
-                return ResponseEntity.status(HttpStatus.NO_CONTENT).body(responseDto);
-            }
-            ResponseDto<List<CompanyDto>> responseDto = ResponseDto.success("200", "Companies retrieved successfully", companyDtoList);
-            return ResponseEntity.ok(responseDto);
-        } catch (Exception e) {
-            ResponseDto<List<CompanyDto>> responseDto = ResponseDto.error("500", "An error occurred while retrieving companies", null);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseDto);
-        }
-    }
+	}
 
-    // Update company
-    @PutMapping("/{companyId}")
-    @Operation(summary = "Update Company", description = "Update company details into the database")
-    public ResponseEntity<ResponseDto<CompanyDto>> updateCompany(@PathVariable Integer companyId, @RequestBody CompanyDto companyDto) {
-        try {
-            CompanyDto updatedCompany = companyService.updateCompany(companyId, companyDto);
-            ResponseDto<CompanyDto> responseDto = ResponseDto.success("200", "Company updated successfully", updatedCompany);
-            return ResponseEntity.ok(responseDto);
-        } catch (Exception e) {
-            ResponseDto<CompanyDto> responseDto = ResponseDto.error("404", "Company not found", null);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseDto);
-        }
-    }
+	// Get all companies
+	@GetMapping
+	@Operation(summary = "Get all Company", description = "Get all company details into the database")
+	public ResponseEntity<ResponseDto<List<CompanyDto>>> getAllCompanies() {
+		List<CompanyDto> companyDtoList = companyService.getAllCompanies();
+		if (companyDtoList.isEmpty()) {
+			ResponseDto<List<CompanyDto>> responseDto = ResponseDto.error("204", "No companies found", null);
+			return ResponseEntity.status(HttpStatus.NO_CONTENT).body(responseDto);
+		}
+		ResponseDto<List<CompanyDto>> responseDto = ResponseDto.success("200", "Companies retrieved successfully",
+				companyDtoList);
+		return ResponseEntity.ok(responseDto);
 
-    // Delete company
-    @DeleteMapping("/{companyId}")
-    @Operation(summary = "Delete Company", description = "Delete company details into the database")
-    public ResponseEntity<ResponseDto<Void>> deleteCompany(@PathVariable Integer companyId) {
-        try {
-            companyService.deleteCompany(companyId);
-            ResponseDto<Void> responseDto = ResponseDto.success("200", "Company deleted successfully", null);
-            return ResponseEntity.ok(responseDto);
-        } catch (Exception e) {
-            ResponseDto<Void> responseDto = ResponseDto.error("404", "Company not found", null);
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseDto);
-        }
-    }
+	}
+
+	// Update company
+	@PutMapping("/{companyId}")
+	@Operation(summary = "Update Company", description = "Update company details into the database")
+	public ResponseEntity<ResponseDto<CompanyDto>> updateCompany(@PathVariable Integer companyId,
+			@RequestBody CompanyDto companyDto) {
+		CompanyDto updatedCompany = companyService.updateCompany(companyId, companyDto);
+		ResponseDto<CompanyDto> responseDto = ResponseDto.success("200", "Company updated successfully",
+				updatedCompany);
+		return ResponseEntity.ok(responseDto);
+
+	}
+
+	// Delete company
+	@DeleteMapping("/{companyId}")
+	@Operation(summary = "Delete Company", description = "Delete company details into the database")
+	public ResponseEntity<ResponseDto<Void>> deleteCompany(@PathVariable Integer companyId) {
+		companyService.deleteCompany(companyId);
+		ResponseDto<Void> responseDto = ResponseDto.success("200", "Company deleted successfully", null);
+		return ResponseEntity.ok(responseDto);
+
+	}
 }

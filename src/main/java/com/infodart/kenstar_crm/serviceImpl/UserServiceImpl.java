@@ -112,15 +112,6 @@ public class UserServiceImpl implements UserService {
 			throw new UserAlreadyExistException("Mobile number already exists");
 		}
 
-//		if (!Utils.isNullOrEmpty(userDetailDto.getEmail()) && userDetailRepo.existsByEmail(userDetailDto.getEmail())) {
-//			throw new RuntimeException("Email already exists");
-//		}
-//
-//		if (!Utils.isNullOrEmpty(userDetailDto.getMobilenumber())
-//				&& userDetailRepo.existsByMobilenumber(userDetailDto.getMobilenumber())) {
-//			throw new RuntimeException("Mobile number already exists");
-//		}
-
 		// 3. Map to entity
 		User user = new User();
 		user.setUsername(userDetailDto.getUsername());
@@ -185,27 +176,22 @@ public class UserServiceImpl implements UserService {
 	public List<UserDto> getAllUsers() {
 		List<User> users = (List<User>) userDetailRepo.findAll();
 		List<UserDto> userDetailDtoList = new ArrayList<>();
-
 		for (User user : users) {
 			userDetailDtoList.add(UserMapper.toDto(user));
 		}
-
 		return userDetailDtoList;
 	}
 
 	@Override
 	public List<RoleDto> getAllRoles() {
 		List<Role> roles = (List<Role>) roleRepo.findAll();
-
 		List<RoleDto> roleDtoList = new ArrayList<>();
 		for (Role role : roles) {
 			RoleDto roleDto = new RoleDto();
 			roleDto.setId(role.getId());
 			roleDto.setName(role.getName());
-
 			roleDtoList.add(roleDto);
 		}
-
 		return roleDtoList;
 	}
 
@@ -217,10 +203,8 @@ public class UserServiceImpl implements UserService {
 		// user.setName(dto.getName());
 		user.setEmail(dto.getEmail());
 		// user.setRoles(dto.getRole().get);
-
 		if (dto.getRole() != null && !dto.getRole().isEmpty()) {
 			String rolesAsString = String.join(", ", dto.getRole());
-
 			// Role role = roleRepo.findByName(userDetailDto.getRole());
 			Optional<Role> optionalRole = roleRepo.findByName(rolesAsString);
 			Role role = null;
@@ -232,8 +216,6 @@ public class UserServiceImpl implements UserService {
 			user.setRoles(role);
 
 		}
-
-//		User updatedUser = userDetailRepo.save(user);
 		return UserMapper.toDto(userDetailRepo.save(user));
 	}
 
@@ -258,21 +240,16 @@ public class UserServiceImpl implements UserService {
 			user.setRoles(role);
 
 		}
-
-//		User updatedUser = userDetailRepo.save(user);
 		return UserMapper.toDto(userDetailRepo.save(user));
 	}
 
 	@Override
 	public void deleteUser(Long id) {
-		User user = userDetailRepo.findById(id).orElseThrow(() -> new UserNotFoundException("User not found"));
-		//userDetailRepo.delete(user);
-		
+		User user = userDetailRepo.findById(id).orElseThrow(() -> new UserNotFoundException("User not found"));		
 		// instead of delete.. de-activate the user..
 		if (user.getIsActive() == 0) {
 			throw new UserAlreadyInactiveException("User is already deactivated");
 		}
-
 		user.setIsActive(0);
 		UserMapper.toDto(userDetailRepo.save(user));
 	}
@@ -280,13 +257,10 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public UserDto deactivateUser(Long id) {
 		User user = userDetailRepo.findById(id).orElseThrow(() -> new UserNotFoundException("User not found"));
-
 		if (user.getIsActive() == 0) {
 			throw new UserAlreadyInactiveException("User is already deactivated");
 		}
-
 		user.setIsActive(0);
-//		User updatedUser = userDetailRepo.save(user);
 		return UserMapper.toDto(userDetailRepo.save(user));
 	}
 
@@ -297,7 +271,6 @@ public class UserServiceImpl implements UserService {
 			throw new UserAlreadyInactiveException("User is already active");
 		}
 		user.setIsActive(1);
-//		User updatedUser = userDetailRepo.save(user);
 		return UserMapper.toDto(userDetailRepo.save(user));
 	}
 

@@ -1,7 +1,5 @@
 package com.infodart.kenstar_crm.dto;
 
-import java.util.Set;
-
 public class UserDto {
 
 	private Long id;

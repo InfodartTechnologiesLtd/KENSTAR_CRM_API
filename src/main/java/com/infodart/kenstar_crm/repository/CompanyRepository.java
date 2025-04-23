@@ -9,21 +9,21 @@ import org.springframework.stereotype.Repository;
 import com.infodart.kenstar_crm.entity.Company;
 
 @Repository
-public interface CompanyRepository extends CrudRepository<Company, Long>{
-	
-	public List<Company> findAllByCompanyCode(String companyCode);
-	
-	public List<Company> findAllByCompanyName(String companyName);
-	
-	public Company findAllById(int companyId);
-	
-	 // Optional: fetch all companies by user id (if needed in future)
-    List<Company> findByUser_Id(Long userId);
+public interface CompanyRepository extends CrudRepository<Company, Long> {
 
-    // Optional: fetch by companyCode (if you plan to use it for uniqueness checks)
-    Optional<Company> findByCompanyCode(String companyCode);
-    Optional<Company> findByCompanyName(String companyName);
-    
-    Optional<Company>  findById(Integer companyId);
+	public List<Company> findAllByCompanyCode(String companyCode);
+
+	public List<Company> findAllByCompanyName(String companyName);
+
+	public Company findAllById(int companyId);
+
+	// Optional: fetch all companies by user id (if needed in future)
+	List<Company> findByUser_Id(Long userId);
+
+	Optional<Company> findByCompanyCode(String companyCode);
+
+	Optional<Company> findByCompanyName(String companyName);
+
+	Optional<Company> findById(Integer companyId);
 
 }

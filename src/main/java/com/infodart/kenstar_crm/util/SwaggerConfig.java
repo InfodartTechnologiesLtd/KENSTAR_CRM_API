@@ -1,7 +1,5 @@
 package com.infodart.kenstar_crm.util;
 
-import java.util.List;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
