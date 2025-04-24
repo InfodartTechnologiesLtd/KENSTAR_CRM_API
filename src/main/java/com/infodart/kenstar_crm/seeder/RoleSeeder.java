@@ -5,9 +5,10 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.infodart.kenstar_crm.entity.ERole;
 import com.infodart.kenstar_crm.repository.RoleRepo;
 import com.infodart.kenstar_crm.entity.Role;
+import com.infodart.kenstar_crm.enums.ERole;
+
 import jakarta.annotation.PostConstruct;
 
 @Component

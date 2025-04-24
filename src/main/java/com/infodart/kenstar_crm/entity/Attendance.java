@@ -1,169 +1,157 @@
 package com.infodart.kenstar_crm.entity;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Date;
+import java.time.LocalTime;
 
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import com.infodart.kenstar_crm.enums.AttendanceStatus;
+import com.infodart.kenstar_crm.enums.AttendanceType;
+import com.infodart.kenstar_crm.enums.DayName;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "attendance")
-public class Attendance {
+public class Attendance extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	private Long employeeId;
+	@NotNull(message = "User ID is required")
+	private Long userId;
 
-	private LocalDate attendanceDate;
+	@NotNull(message = "Date is required")
+	private LocalDate date;
 
-	private LocalDateTime inTime;
+	private LocalTime checkInTime;
 
-	private LocalDateTime outTime;
+	private LocalTime checkOutTime;
 
-	private String createdBy;
-	private String updatedBy;
+	private Double workingHours;
 
-	@CreationTimestamp
-	@Column(updatable = false, name = "created_at")
-	@JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
-	private Date createdDateTime;
+	@Enumerated(EnumType.STRING)
+	private AttendanceType attendanceType;
 
-	@UpdateTimestamp
-	@Column(name = "updated_at")
-	@JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
-	private Date updatedDateTime;
+	@Enumerated(EnumType.STRING)
+	private DayName dayName;
 
+	@Enumerated(EnumType.STRING)
+	private AttendanceStatus attendanceStatus;
+
+	private Boolean isApproved;
+
+	private int month;  // Field for the month
+    private int year;   // Field for the year
+    
+    
 	public Attendance() {
 		super();
-	}
-
-	public Attendance(Long employeeId) {
-
-		this.employeeId = employeeId;
-	}
-
-	public Attendance(Long employeeId, LocalDate attendanceDate) {
-		this(employeeId);
-		this.attendanceDate = attendanceDate;
-	}
-
-	public Attendance(Long employeeId, LocalDate attendanceDate, LocalDateTime inTime) {
-
-		this(employeeId, attendanceDate);
-		this.inTime = inTime;
-	}
-
-	public Attendance(  Long employeeId, LocalDate attendanceDate, LocalDateTime inTime, LocalDateTime outTime) {
-		this(  employeeId, attendanceDate, inTime);
-		this.outTime = outTime;
-	}
-
-	public Attendance(  Long employeeId, LocalDate attendanceDate, LocalDateTime inTime, LocalDateTime outTime,
-			String createdBy) {
-		this(  employeeId, attendanceDate, inTime, outTime);
-		this.createdBy = createdBy;
-	}
-
-	public Attendance(  Long employeeId, LocalDate attendanceDate, LocalDateTime inTime, LocalDateTime outTime,
-			String createdBy, String updatedBy) {
-		this(  employeeId, attendanceDate, inTime, outTime, createdBy);
-		this.updatedBy = updatedBy;
-	}
-
-	public Attendance(  Long employeeId, LocalDate attendanceDate, LocalDateTime inTime, LocalDateTime outTime,
-			String createdBy, String updatedBy, Date createdDateTime) {
-		this(  employeeId, attendanceDate, inTime, outTime, createdBy, updatedBy);
-		this.createdDateTime = createdDateTime;
-	}
-
-	public Attendance(  Long employeeId, LocalDate attendanceDate, LocalDateTime inTime, LocalDateTime outTime,
-			String createdBy, String updatedBy, Date createdDateTime, Date updatedDateTime) {
-		this(  employeeId, attendanceDate, inTime, outTime, createdBy, updatedBy, createdDateTime);
-		this.updatedDateTime = updatedDateTime;
 	}
 
 	public Long getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
-		this.id = id;
+	public void setId(Long attendanceId) {
+		this.id = attendanceId;
 	}
 
-	public Long getEmployeeId() {
-		return employeeId;
+	public Long getUserId() {
+		return userId;
 	}
 
-	public void setEmployeeId(Long employeeId) {
-		this.employeeId = employeeId;
+	public void setUserId(Long userId) {
+		this.userId = userId;
 	}
 
-	public LocalDate getAttendanceDate() {
-		return attendanceDate;
+	public LocalDate getDate() {
+		return date;
 	}
 
-	public void setAttendanceDate(LocalDate attendanceDate) {
-		this.attendanceDate = attendanceDate;
+	public void setDate(LocalDate date) {
+		this.date = date;
 	}
 
-	public LocalDateTime getInTime() {
-		return inTime;
+	public LocalTime getCheckInTime() {
+		return checkInTime;
 	}
 
-	public void setInTime(LocalDateTime inTime) {
-		this.inTime = inTime;
+	public void setCheckInTime(LocalTime checkInTime) {
+		this.checkInTime = checkInTime;
 	}
 
-	public LocalDateTime getOutTime() {
-		return outTime;
+	public LocalTime getCheckOutTime() {
+		return checkOutTime;
 	}
 
-	public void setOutTime(LocalDateTime outTime) {
-		this.outTime = outTime;
+	public void setCheckOutTime(LocalTime checkOutTime) {
+		this.checkOutTime = checkOutTime;
 	}
 
-	public String getCreatedBy() {
-		return createdBy;
+	public Double getWorkingHours() {
+		return workingHours;
 	}
 
-	public void setCreatedBy(String createdBy) {
-		this.createdBy = createdBy;
+	public void setWorkingHours(Double workingHours) {
+		this.workingHours = workingHours;
 	}
 
-	public String getUpdatedBy() {
-		return updatedBy;
+	public AttendanceType getAttendanceType() {
+		return attendanceType;
 	}
 
-	public void setUpdatedBy(String updatedBy) {
-		this.updatedBy = updatedBy;
+	public void setAttendanceType(AttendanceType attendanceType) {
+		this.attendanceType = attendanceType;
 	}
 
-	public Date getCreatedDateTime() {
-		return createdDateTime;
+	public DayName getDayName() {
+		return dayName;
 	}
 
-	public void setCreatedDateTime(Date createdDateTime) {
-		this.createdDateTime = createdDateTime;
+	public void setDayName(DayName dayName) {
+		this.dayName = dayName;
 	}
 
-	public Date getUpdatedDateTime() {
-		return updatedDateTime;
+	public AttendanceStatus getAttendanceStatus() {
+		return attendanceStatus;
 	}
 
-	public void setUpdatedDateTime(Date updatedDateTime) {
-		this.updatedDateTime = updatedDateTime;
+	public void setAttendanceStatus(AttendanceStatus status) {
+		this.attendanceStatus = status;
 	}
 
+	public Boolean getIsApproved() {
+		return isApproved;
+	}
+
+	public void setIsApproved(Boolean isApproved) {
+		this.isApproved = isApproved;
+	}
+
+	public int getMonth() {
+		return month;
+	}
+
+	public void setMonth(int month) {
+		this.month = month;
+	}
+
+	public int getYear() {
+		return year;
+	}
+
+	public void setYear(int year) {
+		this.year = year;
+	}
+
+	
+	
+	
 }

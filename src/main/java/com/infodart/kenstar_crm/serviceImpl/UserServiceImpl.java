@@ -10,9 +10,9 @@ import org.springframework.stereotype.Service;
 
 import com.infodart.kenstar_crm.dto.RoleDto;
 import com.infodart.kenstar_crm.dto.UserDto;
-import com.infodart.kenstar_crm.entity.ERole;
 import com.infodart.kenstar_crm.entity.Role;
 import com.infodart.kenstar_crm.entity.User;
+import com.infodart.kenstar_crm.enums.ERole;
 import com.infodart.kenstar_crm.exceptions.ResourceNotFoundException;
 import com.infodart.kenstar_crm.exceptions.UserAlreadyExistException;
 import com.infodart.kenstar_crm.exceptions.UserAlreadyInactiveException;

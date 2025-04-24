@@ -1,97 +1,84 @@
 package com.infodart.kenstar_crm.entity;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.infodart.kenstar_crm.enums.LeaveStatus;
+import com.infodart.kenstar_crm.enums.LeaveType;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "leave")
-public class Leave {
+@Table(name = "leaves")
+public class Leave extends BaseEntity {
 
 	@Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long leaveId;
 
-    private Long employeeId;
+//	@ManyToOne(fetch = FetchType.LAZY)
+//	@JoinColumn(name = "user_id", nullable = false)
+//	private User user;
 
-    @Enumerated(EnumType.STRING)
-    private LeaveType leaveType;
-
-    private LocalDate startDate;
-    private LocalDate endDate;
-    private boolean halfDay;
-
-    @Enumerated(EnumType.STRING)
-    private LeaveStatus status;
-
-    
-    private String createdBy;
-	private String updatedBy;
-
-	@CreationTimestamp
-	@Column(updatable = false, name = "created_at")
-	@JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
-	private Date createdDateTime;
-
-	@UpdateTimestamp
-	@Column(name = "updated_at")
-	@JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss")
-	private Date updatedDateTime;
+	private Long userId;
 	
-    // Constructors
-    public Leave() {}
+	@Enumerated(EnumType.STRING)
+	private LeaveType leaveType;
 
+	@Column(nullable = false)
+	private LocalDateTime startDate;
+
+	@Column(nullable = false)
+	private LocalDateTime endDate;
+
+	private String reason;
+
+	@Enumerated(EnumType.STRING)
+	private LeaveStatus leaveStatus = LeaveStatus.PENDING;
+
+	private int totalDays; // Can be calculated as difference between start and end
+
+	private int balanceBefore;
+	private int balanceAfter;
 	 
-    
-    
-    
-	public Leave(Long id, Long employeeId, LeaveType leaveType, LocalDate startDate, LocalDate endDate, boolean halfDay,
-			LeaveStatus status, String createdBy, String updatedBy, Date createdDateTime, Date updatedDateTime) {
-		super();
-		this.id = id;
-		this.employeeId = employeeId;
-		this.leaveType = leaveType;
-		this.startDate = startDate;
-		this.endDate = endDate;
-		this.halfDay = halfDay;
-		this.status = status;
-		this.createdBy = createdBy;
-		this.updatedBy = updatedBy;
-		this.createdDateTime = createdDateTime;
-		this.updatedDateTime = updatedDateTime;
+	private Long approvedBy;
+	private LocalDateTime approvedAt;
+	private String rejectionReason;
+	
+
+	// Constructors
+	public Leave() {
 	}
 
-
-
-
-
-	public Long getId() {
-		return id;
+	public Long getLeaveId() {
+		return leaveId;
 	}
 
-	public void setId(Long id) {
-		this.id = id;
+	public void setLeaveId(Long leaveId) {
+		this.leaveId = leaveId;
 	}
 
-	public Long getEmployeeId() {
-		return employeeId;
+	public Long getUserId() {
+		return userId;
 	}
 
-	public void setEmployeeId(Long employeeId) {
-		this.employeeId = employeeId;
+	public void setUserId(Long userId) {
+		this.userId = userId;
 	}
 
 	public LeaveType getLeaveType() {
@@ -102,71 +89,86 @@ public class Leave {
 		this.leaveType = leaveType;
 	}
 
-	public LocalDate getStartDate() {
+	public LocalDateTime getStartDate() {
 		return startDate;
 	}
 
-	public void setStartDate(LocalDate startDate) {
+	public void setStartDate(LocalDateTime startDate) {
 		this.startDate = startDate;
 	}
 
-	public LocalDate getEndDate() {
+	public LocalDateTime getEndDate() {
 		return endDate;
 	}
 
-	public void setEndDate(LocalDate endDate) {
+	public void setEndDate(LocalDateTime endDate) {
 		this.endDate = endDate;
 	}
 
-	public boolean isHalfDay() {
-		return halfDay;
+	public String getReason() {
+		return reason;
 	}
 
-	public void setHalfDay(boolean halfDay) {
-		this.halfDay = halfDay;
+	public void setReason(String reason) {
+		this.reason = reason;
 	}
 
-	public LeaveStatus getStatus() {
-		return status;
+	public LeaveStatus getLeaveStatus() {
+		return leaveStatus;
 	}
 
-	public void setStatus(LeaveStatus status) {
-		this.status = status;
+	public void setLeaveStatus(LeaveStatus leaveStatus) {
+		this.leaveStatus = leaveStatus;
 	}
 
-	public String getCreatedBy() {
-		return createdBy;
+	public int getTotalDays() {
+		return totalDays;
 	}
 
-	public void setCreatedBy(String createdBy) {
-		this.createdBy = createdBy;
+	public void setTotalDays(int totalDays) {
+		this.totalDays = totalDays;
 	}
 
-	public String getUpdatedBy() {
-		return updatedBy;
+	public int getBalanceBefore() {
+		return balanceBefore;
 	}
 
-	public void setUpdatedBy(String updatedBy) {
-		this.updatedBy = updatedBy;
+	public void setBalanceBefore(int balanceBefore) {
+		this.balanceBefore = balanceBefore;
 	}
 
-	public Date getCreatedDateTime() {
-		return createdDateTime;
+	public int getBalanceAfter() {
+		return balanceAfter;
 	}
 
-	public void setCreatedDateTime(Date createdDateTime) {
-		this.createdDateTime = createdDateTime;
+	public void setBalanceAfter(int balanceAfter) {
+		this.balanceAfter = balanceAfter;
 	}
 
-	public Date getUpdatedDateTime() {
-		return updatedDateTime;
+	public Long getApprovedBy() {
+		return approvedBy;
 	}
 
-	public void setUpdatedDateTime(Date updatedDateTime) {
-		this.updatedDateTime = updatedDateTime;
+	public void setApprovedBy(Long approvedBy) {
+		this.approvedBy = approvedBy;
 	}
-	
-	
-	
-	
+
+	public LocalDateTime getApprovedAt() {
+		return approvedAt;
+	}
+
+	public void setApprovedAt(LocalDateTime approvedAt) {
+		this.approvedAt = approvedAt;
+	}
+
+	public String getRejectionReason() {
+		return rejectionReason;
+	}
+
+	public void setRejectionReason(String rejectionReason) {
+		this.rejectionReason = rejectionReason;
+	}
+
+	 
+
 }

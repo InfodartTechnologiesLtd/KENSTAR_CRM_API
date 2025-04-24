@@ -10,8 +10,8 @@ import org.springframework.util.StringUtils;
 
 import com.infodart.kenstar_crm.dto.CompanyDto;
 import com.infodart.kenstar_crm.entity.Company;
-import com.infodart.kenstar_crm.entity.ERole;
 import com.infodart.kenstar_crm.entity.User;
+import com.infodart.kenstar_crm.enums.ERole;
 import com.infodart.kenstar_crm.exceptions.ResourceNotFoundException;
 import com.infodart.kenstar_crm.mapper.CompanyMapper;
 import com.infodart.kenstar_crm.repository.CompanyRepository;
