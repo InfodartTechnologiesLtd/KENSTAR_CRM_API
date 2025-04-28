@@ -11,8 +11,8 @@ public interface AuthService {
 
 	public PinDto setPin(PinDto userDto);
 
-	public PinDto forgotPin(Long userId,PinDto userDto);
+	public PinDto forgotPin(Long userId, PinDto userDto);
 
-	public PinDto changePin(Long userId,PinDto userDto);
+	public PinDto changePin(Long userId, PinDto userDto);
 
 }

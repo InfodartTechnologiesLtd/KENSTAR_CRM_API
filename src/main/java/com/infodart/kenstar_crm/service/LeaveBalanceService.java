@@ -1,10 +1,10 @@
 package com.infodart.kenstar_crm.service;
 
-import com.infodart.kenstar_crm.entity.LeaveBalance;
+import com.infodart.kenstar_crm.dto.LeaveBalanceDto;
 
 public interface LeaveBalanceService {
 
-	public LeaveBalance createOrInitializeBalance(Long userId);
+	public LeaveBalanceDto createOrInitializeBalance(Long userId);
 
-	public LeaveBalance getBalanceByUserId(Long userId);
+	public LeaveBalanceDto getBalanceByUserId(Long userId);
 }

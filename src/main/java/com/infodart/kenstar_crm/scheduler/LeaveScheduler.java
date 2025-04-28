@@ -35,7 +35,7 @@ public class LeaveScheduler {
 		for (User user : users) {
 			LeaveBalance balance = leaveBalanceRepository.findByUserId(user.getId()).orElseGet(() -> {
 				LeaveBalance b = new LeaveBalance();
-				b.setUser(user.getId());
+				b.setUserId(user.getId());
 				b.setTotalLeaves(0);
 				b.setUsedLeaves(0);
 				b.setRemainingLeaves(0);

@@ -8,7 +8,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.infodart.kenstar_crm.entity.LeaveBalance;
+import com.infodart.kenstar_crm.dto.LeaveBalanceDto;
+import com.infodart.kenstar_crm.dto.ResponseDto;
 import com.infodart.kenstar_crm.service.LeaveBalanceService;
 
 @RestController
@@ -19,14 +20,18 @@ public class LeaveBalanceController {
     private   LeaveBalanceService leaveBalanceService;
 
     @PostMapping("/initialize/{userId}")
-    public ResponseEntity<LeaveBalance> initialize(@PathVariable Long userId) {
-        LeaveBalance balance = leaveBalanceService.createOrInitializeBalance(userId);
-        return ResponseEntity.ok(balance);
+    public ResponseEntity<ResponseDto<LeaveBalanceDto>>initialize(@PathVariable Long userId) {
+    	LeaveBalanceDto leaveBalanceDto = leaveBalanceService.createOrInitializeBalance(userId);
+		ResponseDto<LeaveBalanceDto> responseDto = ResponseDto.success("200", "Leave added successfully!", leaveBalanceDto);
+
+        return ResponseEntity.ok(responseDto);
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<LeaveBalance> getByUser(@PathVariable Long userId) {
-        LeaveBalance balance = leaveBalanceService.getBalanceByUserId(userId);
-        return ResponseEntity.ok(balance);
+    public ResponseEntity<ResponseDto<LeaveBalanceDto>> getByUser(@PathVariable Long userId) {
+    	LeaveBalanceDto leaveBalanceDto = leaveBalanceService.getBalanceByUserId(userId);
+		ResponseDto<LeaveBalanceDto> responseDto = ResponseDto.success("200", "Leave fetch successfully!", leaveBalanceDto);
+
+        return ResponseEntity.ok(responseDto);
     }
 }

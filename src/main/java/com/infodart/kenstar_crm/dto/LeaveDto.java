@@ -1,17 +1,9 @@
 package com.infodart.kenstar_crm.dto;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import com.infodart.kenstar_crm.enums.LeaveStatus;
 import com.infodart.kenstar_crm.enums.LeaveType;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 
 public class LeaveDto {
 

@@ -10,7 +10,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.infodart.kenstar_crm.entity.Holiday;
-import com.infodart.kenstar_crm.entity.Role;
 
 @Repository
 public interface HolidayRepository extends JpaRepository<Holiday, Long> {

@@ -14,6 +14,7 @@ import com.infodart.kenstar_crm.entity.Company;
 import com.infodart.kenstar_crm.entity.Pin;
 import com.infodart.kenstar_crm.entity.Role;
 import com.infodart.kenstar_crm.entity.User;
+import com.infodart.kenstar_crm.exceptions.IllegalArguException;
 import com.infodart.kenstar_crm.exceptions.ResourceNotFoundException;
 import com.infodart.kenstar_crm.exceptions.UserNotFoundException;
 import com.infodart.kenstar_crm.repository.AuthRepository;
@@ -98,7 +99,7 @@ public class AuthServiceImpl implements AuthService {
 	public PinDto setPin(PinDto pinDto) {
 		Optional<User> optionalUser = userRepository.findById(pinDto.getUserId());
 		if (!optionalUser.isPresent()) {
-			throw new IllegalStateException("User not found with ID: " + pinDto.getUserId());
+			throw new UserNotFoundException("User not found with ID: " + pinDto.getUserId());
 		}
 
 		// Fetch PIN detail by user ID
@@ -184,15 +185,15 @@ public class AuthServiceImpl implements AuthService {
 	@Override
 	public PinDto changePin(Long userId, PinDto pinDto) {
 		if (pinDto.getOldPinCode() == null || pinDto.getOldPinCode().isBlank()) {
-			throw new IllegalArgumentException("Old PIN must not be empty.");
+			throw new IllegalArguException("Old PIN must not be empty.");
 		}
 
 		if (pinDto.getPinCode() == null || pinDto.getPinCode().isBlank()) {
-			throw new IllegalArgumentException("New PIN must not be empty.");
+			throw new IllegalArguException("New PIN must not be empty.");
 		}
 
 		if (pinDto.getOldPinCode().equals(pinDto.getPinCode())) {
-			throw new IllegalArgumentException("New PIN cannot be the same as the old PIN.");
+			throw new IllegalArguException("New PIN cannot be the same as the old PIN.");
 		}
 
 		// Check if user exists
@@ -221,7 +222,7 @@ public class AuthServiceImpl implements AuthService {
 
 		// Match old PIN
 		if (!BCrypt.checkpw(pinDto.getOldPinCode(), pinDetail.getPinCode())) {
-			throw new IllegalArgumentException("Old PIN is incorrect.");
+			throw new IllegalArguException("Old PIN is incorrect.");
 		}
 
 		String oldPinCode = pinDetail.getPinCode();

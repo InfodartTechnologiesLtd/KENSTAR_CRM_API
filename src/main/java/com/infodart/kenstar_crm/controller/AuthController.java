@@ -28,16 +28,16 @@ public class AuthController {
 	@PostMapping("/createPin")
 	@Operation(summary = "Create PIN", description = "Creates a new PIN for the user")
 	public ResponseEntity<ResponseDto<PinDto>> createPin(@RequestBody PinDto request) {
-		try {
+		//try {
 			PinDto pinDto = authService.setPin(request);
 			return ResponseEntity.ok(ResponseDto.success("200", "PIN created successfully", pinDto));
-		} catch (IllegalStateException e) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseDto.error("400", e.getMessage(), null));
-		} catch (Exception e) {
-			e.printStackTrace();
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body(ResponseDto.error("500", "Internal Server Error", null));
-		}
+//		} catch (IllegalStateException e) {
+//			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseDto.error("400", e.getMessage(), null));
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//					.body(ResponseDto.error("500", "Internal Server Error", null));
+//		}
 	}
 
 	@PostMapping("/forgotPin/{userId}")

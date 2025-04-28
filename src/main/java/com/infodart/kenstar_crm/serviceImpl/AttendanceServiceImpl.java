@@ -1,9 +1,12 @@
 package com.infodart.kenstar_crm.serviceImpl;
 
+import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,6 +18,8 @@ import com.infodart.kenstar_crm.entity.Holiday;
 import com.infodart.kenstar_crm.entity.User;
 import com.infodart.kenstar_crm.enums.AttendanceStatus;
 import com.infodart.kenstar_crm.enums.AttendanceType;
+import com.infodart.kenstar_crm.exceptions.ResourceNotFoundException;
+import com.infodart.kenstar_crm.exceptions.UserNotFoundException;
 import com.infodart.kenstar_crm.mapper.AttendanceMapper;
 import com.infodart.kenstar_crm.repository.AttendanceRepository;
 import com.infodart.kenstar_crm.repository.HolidayRepository;
@@ -22,15 +27,6 @@ import com.infodart.kenstar_crm.repository.UserRepository;
 import com.infodart.kenstar_crm.service.AttendanceService;
 
 import jakarta.persistence.EntityNotFoundException;
-
-import org.springframework.stereotype.Service;
-
-import java.time.DayOfWeek;
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class AttendanceServiceImpl implements AttendanceService {
@@ -131,7 +127,7 @@ public class AttendanceServiceImpl implements AttendanceService {
 
 	@Override
 	public AttendanceDto markAttendance(Long userId, AttendanceDto dto) {
-		User user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException("User not found"));
+		User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found"));
 
 		LocalDate attendanceDate = dto.getDate() != null ? dto.getDate() : LocalDate.now();
 		LocalTime checkInTime = dto.getCheckInTime();
@@ -158,13 +154,11 @@ public class AttendanceServiceImpl implements AttendanceService {
 		}
 
 		// HOLIDAY auto mark
-		
+
 		Optional<Holiday> optionalHoliday = holidayRepository.findByDate(attendanceDate);
 		if (!optionalHoliday.isEmpty()) {
-			 
-		 
-		
-		//if (holidayRepository.existsByDate(attendanceDate)) {
+
+			// if (holidayRepository.existsByDate(attendanceDate)) {
 			if (existing == null) {
 				Attendance holidayAttendance = new Attendance();
 				holidayAttendance.setUserId(userId);
@@ -184,7 +178,7 @@ public class AttendanceServiceImpl implements AttendanceService {
 			if (existing.getCheckInTime() != null && existing.getCheckOutTime() == null && checkOutTime != null) {
 				existing.setCheckOutTime(checkOutTime);
 				Duration duration = Duration.between(existing.getCheckInTime(), checkOutTime);
-				double hours = duration.toHours();
+				double hours = duration.toHours();  
 				existing.setWorkingHours(hours);
 
 				if (hours >= 9) {
@@ -233,14 +227,14 @@ public class AttendanceServiceImpl implements AttendanceService {
 	@Override
 	public AttendanceDto getAttendanceById(Long id) {
 		Attendance attendance = attendanceRepository.findById(id)
-				.orElseThrow(() -> new EntityNotFoundException("Attendance not found"));
+				.orElseThrow(() -> new ResourceNotFoundException("Attendance not found"));
 		return AttendanceMapper.toDto(attendance);
 	}
 
 	@Override
 	public AttendanceDto updateAttendance(Long id, AttendanceDto dto) {
 		Attendance attendance = attendanceRepository.findById(id)
-				.orElseThrow(() -> new EntityNotFoundException("Attendance not found"));
+				.orElseThrow(() -> new ResourceNotFoundException("Attendance not found"));
 
 		attendance.setCheckInTime(dto.getCheckInTime());
 		attendance.setCheckOutTime(dto.getCheckOutTime());
@@ -266,7 +260,7 @@ public class AttendanceServiceImpl implements AttendanceService {
 	@Override
 	public void deleteAttendance(Long id) {
 		Attendance attendance = attendanceRepository.findById(id)
-				.orElseThrow(() -> new EntityNotFoundException("Attendance not found"));
+				.orElseThrow(() -> new ResourceNotFoundException("Attendance not found"));
 		attendanceRepository.delete(attendance);
 	}
 
@@ -284,7 +278,7 @@ public class AttendanceServiceImpl implements AttendanceService {
 	@Override
 	public AttendanceDto approveAttendance(Long id) {
 		Attendance attendance = attendanceRepository.findById(id)
-				.orElseThrow(() -> new EntityNotFoundException("Attendance not found"));
+				.orElseThrow(() -> new UserNotFoundException("Attendance not found"));
 		attendance.setIsApproved(true);
 		attendance.setAttendanceStatus(AttendanceStatus.APPROVED);
 		return AttendanceMapper.toDto(attendanceRepository.save(attendance));
@@ -293,7 +287,7 @@ public class AttendanceServiceImpl implements AttendanceService {
 	@Override
 	public AttendanceDto rejectAttendance(Long id) {
 		Attendance attendance = attendanceRepository.findById(id)
-				.orElseThrow(() -> new EntityNotFoundException("Attendance not found"));
+				.orElseThrow(() -> new UserNotFoundException("Attendance not found"));
 		attendance.setIsApproved(false);
 		attendance.setAttendanceStatus(AttendanceStatus.REJECTED);
 		return AttendanceMapper.toDto(attendanceRepository.save(attendance));
@@ -302,17 +296,17 @@ public class AttendanceServiceImpl implements AttendanceService {
 	// @@@@@@@@@@@@@@@@@
 	@Override
 	public AttendanceDto getAttendanceByDate(Long userId, LocalDate date) {
-		User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+		User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found"));
 
 		Attendance attendance = attendanceRepository.findByUserIdAndDate(user.getId(), date)
-				.orElseThrow(() -> new RuntimeException("Attendance not found for given date."));
+				.orElseThrow(() -> new ResourceNotFoundException("Attendance not found for given date."));
 
 		return AttendanceMapper.toDto(attendance);
 	}
 
 	@Override
 	public AttendanceSummaryDto getSummary(Long userId, int month, int year) {
-		User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+		User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found"));
 
 		List<Attendance> attendanceList = attendanceRepository.findByUserIdAndMonthAndYear(user.getId(), month, year);
 
@@ -349,4 +343,13 @@ public class AttendanceServiceImpl implements AttendanceService {
 	// private boolean isHoliday(LocalDate date) {
 	// return holidayRepository.findByDate(date).isPresent();
 	// }
+
+	// Get Last 7 Days Attendance
+	public List<AttendanceDto> getLast7DaysAttendance(Long employeeId) {
+		LocalDate today = LocalDate.now();
+		LocalDate startDate = today.minusDays(6);
+		List<Attendance> allList = attendanceRepository.findByUserIdAndDateBetween(employeeId, startDate, today);
+		return allList.stream().map(AttendanceMapper::toDto).collect(Collectors.toList());
+	}
+
 }

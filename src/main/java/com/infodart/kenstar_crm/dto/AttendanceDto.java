@@ -1,7 +1,6 @@
 package com.infodart.kenstar_crm.dto;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -16,14 +15,17 @@ public class AttendanceDto {
 	private LocalDate date;
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
 	private LocalTime checkInTime;
-	
+
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm")
 	private LocalTime checkOutTime;
 	private Double workingHours;
 	private AttendanceType attendanceType;
-	private DayName  dayName;
+	private DayName dayName;
 	private Boolean isApproved;
 	private AttendanceStatus attendanceStatus;
+
+	private int month; // Field for the month
+	private int year; // Field for the year
 
 	public AttendanceDto() {
 		super();
@@ -31,7 +33,7 @@ public class AttendanceDto {
 
 	public AttendanceDto(Long id, Long userId, LocalDate date, LocalTime checkInTime, LocalTime checkOutTime,
 			Double workingHours, AttendanceType attendanceType, DayName dayName, Boolean isApproved,
-			AttendanceStatus attendanceStatus) {
+			AttendanceStatus attendanceStatus, int month, int year) {
 		super();
 		this.id = id;
 		this.userId = userId;
@@ -43,6 +45,8 @@ public class AttendanceDto {
 		this.dayName = dayName;
 		this.isApproved = isApproved;
 		this.attendanceStatus = attendanceStatus;
+		this.month = month;
+		this.year = year;
 	}
 
 	public Long getId() {
@@ -123,6 +127,22 @@ public class AttendanceDto {
 
 	public void setAttendanceStatus(AttendanceStatus attendanceStatus) {
 		this.attendanceStatus = attendanceStatus;
+	}
+
+	public int getMonth() {
+		return month;
+	}
+
+	public void setMonth(int month) {
+		this.month = month;
+	}
+
+	public int getYear() {
+		return year;
+	}
+
+	public void setYear(int year) {
+		this.year = year;
 	}
 
 	@Override

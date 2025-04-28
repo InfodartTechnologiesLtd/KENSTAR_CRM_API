@@ -8,7 +8,6 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 import com.infodart.kenstar_crm.entity.Attendance;
-import com.infodart.kenstar_crm.entity.User;
 import com.infodart.kenstar_crm.enums.AttendanceStatus;
 
 @Repository
@@ -40,5 +39,7 @@ public interface AttendanceRepository extends CrudRepository<Attendance, Long> {
 
 	boolean existsByDate(LocalDate date);
 
-	boolean existsByUserIdAndDate(Long id, LocalDate today); 
+	boolean existsByUserIdAndDate(Long id, LocalDate today);
+
+	List<Attendance> findByUserIdAndDateBetween(Long employeeId, LocalDate startDate, LocalDate today);  
 }

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.infodart.kenstar_crm.dto.HolidayDto;
 import com.infodart.kenstar_crm.entity.Holiday;
-import com.infodart.kenstar_crm.entity.Role;
+import com.infodart.kenstar_crm.exceptions.UserAlreadyExistException;
 import com.infodart.kenstar_crm.mapper.HolidayMapper;
 import com.infodart.kenstar_crm.repository.HolidayRepository;
 import com.infodart.kenstar_crm.service.HolidayService;
@@ -26,7 +26,7 @@ public class HolidayServiceImpl implements HolidayService {
 		
 		Optional<Holiday> optionalHoliday = holidayRepository.findByDate(dto.getDate());
 		if (!optionalHoliday.isEmpty()) {
-			throw new RuntimeException("Holiday already exists for this date");
+			throw new UserAlreadyExistException("Holiday already exists for this date");
 		}
 //		if (holidayRepository.existsByDate(dto.getDate())) {
 //			throw new RuntimeException("Holiday already exists for this date");

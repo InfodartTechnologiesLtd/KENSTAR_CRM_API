@@ -12,6 +12,7 @@ import com.infodart.kenstar_crm.dto.CompanyDto;
 import com.infodart.kenstar_crm.entity.Company;
 import com.infodart.kenstar_crm.entity.User;
 import com.infodart.kenstar_crm.enums.ERole;
+import com.infodart.kenstar_crm.exceptions.IllegalArguException;
 import com.infodart.kenstar_crm.exceptions.ResourceNotFoundException;
 import com.infodart.kenstar_crm.mapper.CompanyMapper;
 import com.infodart.kenstar_crm.repository.CompanyRepository;
@@ -82,15 +83,15 @@ public class CompanyServiceImpl implements CompanyService {
 		// Validate input fields manually before proceeding (additional validation, if
 		// necessary)
 		if (!StringUtils.hasText(companyDto.getCompanyName())) {
-			throw new IllegalArgumentException("Company name is required.");
+			throw new IllegalArguException("Company name is required.");
 		}
 
 		if (!StringUtils.hasText(companyDto.getCompanyCode())) {
-			throw new IllegalArgumentException("Company code is required.");
+			throw new IllegalArguException("Company code is required.");
 		}
 
 		if (companyDto.getCompanyCode().length() < 2 || companyDto.getCompanyCode().length() > 20) {
-			throw new IllegalArgumentException("Company code must be between 2 and 20 characters.");
+			throw new IllegalArguException("Company code must be between 2 and 20 characters.");
 		}
 
 		// Check if the user exists for the given userId

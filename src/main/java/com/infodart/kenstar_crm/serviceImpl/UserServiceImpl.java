@@ -13,6 +13,7 @@ import com.infodart.kenstar_crm.dto.UserDto;
 import com.infodart.kenstar_crm.entity.Role;
 import com.infodart.kenstar_crm.entity.User;
 import com.infodart.kenstar_crm.enums.ERole;
+import com.infodart.kenstar_crm.exceptions.IllegalArguException;
 import com.infodart.kenstar_crm.exceptions.ResourceNotFoundException;
 import com.infodart.kenstar_crm.exceptions.UserAlreadyExistException;
 import com.infodart.kenstar_crm.exceptions.UserAlreadyInactiveException;
@@ -36,7 +37,7 @@ public class UserServiceImpl implements UserService {
 	public UserDto getUser(UserDto userDetail) {
 
 		if (userDetail == null)
-			throw new IllegalArgumentException("At least one of username, email, or mobile number is required.");
+			throw new IllegalArguException("At least one of username, email, or mobile number is required.");
 
 		// List<User> userDetailList = new ArrayList<>();
 		Optional<User> optionalUser = java.util.Optional.empty();
@@ -57,7 +58,7 @@ public class UserServiceImpl implements UserService {
 
 		User users = optionalUser.get();
 		if (users.getIsActive() == 0) {
-			throw new IllegalArgumentException("User is inactive.");
+			throw new IllegalArguException("User is inactive.");
 		}
 
 		// Pick the first ACTIVE user
@@ -77,23 +78,23 @@ public class UserServiceImpl implements UserService {
 
 		// 1. Validate input
 		if (userDetailDto == null) {
-			throw new IllegalArgumentException("User details must not be null");
+			throw new IllegalArguException("User details must not be null");
 		}
 
 		if (Utils.isNullOrEmpty(userDetailDto.getUsername())) {
-			throw new IllegalArgumentException("Username is required");
+			throw new IllegalArguException("Username is required");
 		}
 		if (Utils.isNullOrEmpty(userDetailDto.getEmail())) {
-			throw new IllegalArgumentException("Email is required");
+			throw new IllegalArguException("Email is required");
 		}
 		if (Utils.isNullOrEmpty(userDetailDto.getMobilenumber())) {
-			throw new IllegalArgumentException("Mobile number is required");
+			throw new IllegalArguException("Mobile number is required");
 		}
 
 		try {
 			ERole.valueOf(userDetailDto.getRole()); // throws IllegalArgumentException if invalid
 		} catch (IllegalArgumentException ex) {
-			throw new RuntimeException("Invalid role provided");
+			throw new IllegalArguException("Invalid role provided");
 		}
 
 		// boolean exists = userDetailRepo.findIdByUsername(userDetailDto.getUsername())
